@@ -13,16 +13,16 @@ Crop regions in napari manually
 ## Usage
 Create a new shapes layer to annotate the region you would like to crop:
 
-![](https://github.com/haesleinhuepf/napari-crop/raw/main/images/shapes.gif)
+![](https://github.com/haesleinhuepf/napari-crop/raw/main/images/shapes.png)
 
 Use the rectangle tool to annotate a region. Start the `crop` tool from the `Tools > Utilities > Crop region` menu. 
 Click the `Run` button to crop the region.
 
-![](https://github.com/haesleinhuepf/napari-crop/raw/main/images/draw_rectangle.gif)
+![](https://github.com/haesleinhuepf/napari-crop/raw/main/images/draw_rectangle.png)
 
 You can also use the `Select shapes` tool to move the rectangle to a new place and crop another region by clicking on `Run`.
 
-![](https://github.com/haesleinhuepf/napari-crop/raw/main/images/move_rectangle.gif)
+![](https://github.com/haesleinhuepf/napari-crop/raw/main/images/move_rectangle.png)
 
 ----------------------------------
 
