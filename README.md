@@ -24,6 +24,10 @@ You can also use the `Select shapes` tool to move the rectangle to a new place a
 
 ![](https://github.com/haesleinhuepf/napari-crop/raw/main/images/move_rectangle.png)
 
+Hint: You can also use the [napari-tabu](https://www.napari-hub.org/plugins/napari-tabu) plugin to send all your cropped images to a new napari window.
+
+![](https://github.com/haesleinhuepf/napari-crop/raw/main/images/new_window.gif)
+
 ----------------------------------
 
 This [napari] plugin was generated with [Cookiecutter] using with [@napari]'s [cookiecutter-napari-plugin] template.
