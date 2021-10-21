@@ -30,8 +30,30 @@ def crop_region(layer: napari.layers.Layer, shapes_layer: napari.layers.Shapes, 
     start_position = rectangle.min(axis=0).astype(int)
     end_position = rectangle.max(axis=0).astype(int)
 
-    cropped_data = data[start_position[0]:end_position[0], start_position[1]:end_position[1]]
+    print("bef s,e", start_position, end_position)
 
+    for i in range(len(start_position)):
+        if start_position[i] == end_position[i]:
+            start_position[i] = 0
+            end_position[i] = data.shape[i]
+
+    print("aft s,e", start_position, end_position)
+
+    if len(data.shape) == 2:
+        cropped_data = data[start_position[0]:end_position[0], start_position[1]:end_position[1]]
+    elif len(data.shape) == 3:
+        cropped_data = data[start_position[0]:end_position[0], start_position[1]:end_position[1],
+                       start_position[2]:end_position[2]]
+    elif len(data.shape) == 4:
+        cropped_data = data[start_position[0]:end_position[0], start_position[1]:end_position[1],
+                       start_position[2]:end_position[2], start_position[3]:end_position[3]]
+    elif len(data.shape) == 5:
+        cropped_data = data[start_position[0]:end_position[0], start_position[1]:end_position[1],
+                       start_position[2]:end_position[2], start_position[3]:end_position[3],
+                       start_position[4]:end_position[4]]
+    else:
+        warnings.warn("Data with " + str(len(data.shape)) + " dimensions not supported for cropping.")
+        return
 
     if isinstance(layer, napari.layers.Image):
         new_layer = viewer.add_image(cropped_data,
