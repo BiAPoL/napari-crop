@@ -27,17 +27,17 @@ def crop_region(layer: napari.layers.Layer, shapes_layer: napari.layers.Shapes, 
     data = layer.data
 
     rectangle = viewer.layers[1].data[-1]
-    start_position = rectangle.min(axis=0).astype(int)
-    end_position = rectangle.max(axis=0).astype(int)
+    start_position = rectangle.min(axis=0)
+    end_position = rectangle.max(axis=0)
+    size = (end_position - start_position).astype(int)
 
-    print("bef s,e", start_position, end_position)
+    start_position = start_position.astype(int)
+    end_position = start_position + size
 
     for i in range(len(start_position)):
         if start_position[i] == end_position[i]:
             start_position[i] = 0
             end_position[i] = data.shape[i]
-
-    print("aft s,e", start_position, end_position)
 
     if len(data.shape) == 2:
         cropped_data = data[start_position[0]:end_position[0], start_position[1]:end_position[1]]
