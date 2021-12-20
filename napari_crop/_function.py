@@ -12,7 +12,7 @@ import napari
 def napari_experimental_provide_function():
     return [crop_region]
 
-def crop_non_rectangle(cropped_data,data_shape,shapes_masks,start_position,end_position,ctz=None):
+def crop_irregular_shape(cropped_data,data_shape,shapes_masks,start_position,end_position,ctz=None):
     '''Çrops data with irregular shapes by means of applying a nD mask'''
     mask2D = np.zeros((data_shape[-2],data_shape[-1]),dtype=bool)
     if len(shapes_masks.shape) > 2:  # get mask where it was drawn (channel, time, z)
@@ -77,23 +77,23 @@ def crop_region(layer: napari.layers.Layer, shapes_layer: napari.layers.Shapes, 
             # hard copy to avoid messing with original data when clearing pixels outside mask
             cropped_data = np.copy(data[start_position[0]:end_position[0], start_position[1]:end_position[1]])
             if shape_types[index] != 'rectangle':
-                cropped_data = crop_non_rectangle(cropped_data,data.shape,shapes_masks[index],start_position,end_position)
+                cropped_data = crop_irregular_shape(cropped_data,data.shape,shapes_masks[index],start_position,end_position)
         elif len(data.shape) == 3:
             cropped_data = np.copy(data[start_position[0]:end_position[0], start_position[1]:end_position[1],
                            start_position[2]:end_position[2]])
             if shape_types[index] != 'rectangle':
-                cropped_data = crop_non_rectangle(cropped_data,data.shape,shapes_masks[index],start_position,end_position,ctz)
+                cropped_data = crop_irregular_shape(cropped_data,data.shape,shapes_masks[index],start_position,end_position,ctz)
         elif len(data.shape) == 4:
             cropped_data = np.copy(data[start_position[0]:end_position[0], start_position[1]:end_position[1],
                            start_position[2]:end_position[2], start_position[3]:end_position[3]])
             if shape_types[index] != 'rectangle':
-                cropped_data = crop_non_rectangle(cropped_data,data.shape,shapes_masks[index],start_position,end_position,ctz)
+                cropped_data = crop_irregular_shape(cropped_data,data.shape,shapes_masks[index],start_position,end_position,ctz)
         elif len(data.shape) == 5:
             cropped_data = np.copy(data[start_position[0]:end_position[0], start_position[1]:end_position[1],
                            start_position[2]:end_position[2], start_position[3]:end_position[3],
                            start_position[4]:end_position[4]])
             if shape_types[index] != 'rectangle':
-                cropped_data = crop_non_rectangle(cropped_data,data.shape,shapes_masks[index],start_position,end_position,ctz)
+                cropped_data = crop_irregular_shape(cropped_data,data.shape,shapes_masks[index],start_position,end_position,ctz)
         else:
             warnings.warn("Data with " + str(len(data.shape)) + " dimensions not supported for cropping.")
             return
