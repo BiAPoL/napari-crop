@@ -24,36 +24,30 @@ def crop_region(layer: napari.layers.Layer, shapes_layer: napari.layers.Shapes, 
         warnings.warn("Please select an image or labels layer to crop.")
         return
 
-    data, layer_props, layer_type = layer.as_layer_data_tuple()
+    layer_data, layer_props, layer_type = layer.as_layer_data_tuple()
 
-    rectangle = viewer.layers[1].data[-1]
-    start_position = rectangle.min(axis=0)
-    end_position = rectangle.max(axis=0)
-    size = (end_position - start_position).astype(int)
+    shape_types = shapes_layer.shape_type
+    shapes = shapes_layer.data
+    for shape, shape_type in zip(shapes, shape_types):
+        # round shape vertices to integer, not sure if necessary here
+        shape = np.round(shape)
 
-    start_position = start_position.astype(int)
-    end_position = start_position + size
+        # move shape vertices to within image coordinate limits
+        layer_shape = np.array(layer_data.shape)
+        if layer_props["rgb"]:
+            layer_shape = layer_shape[:-1]
+        shape = np.max([shape, np.zeros(shape.shape)], axis=0)
+        shape = np.min([shape, np.resize(layer_shape, shape.shape)], axis=0)
 
-    for i in range(len(start_position)):
-        if start_position[i] == end_position[i]:
-            start_position[i] = 0
-            end_position[i] = data.shape[i]
+        start = np.min(shape, axis=0)
+        stop = np.max(shape, axis=0)
 
-    if len(data.shape) == 2:
-        cropped_data = data[start_position[0]:end_position[0], start_position[1]:end_position[1]]
-    elif len(data.shape) == 3:
-        cropped_data = data[start_position[0]:end_position[0], start_position[1]:end_position[1],
-                       start_position[2]:end_position[2]]
-    elif len(data.shape) == 4:
-        cropped_data = data[start_position[0]:end_position[0], start_position[1]:end_position[1],
-                       start_position[2]:end_position[2], start_position[3]:end_position[3]]
-    elif len(data.shape) == 5:
-        cropped_data = data[start_position[0]:end_position[0], start_position[1]:end_position[1],
-                       start_position[2]:end_position[2], start_position[3]:end_position[3],
-                       start_position[4]:end_position[4]]
-    else:
-        warnings.warn("Data with " + str(len(data.shape)) + " dimensions not supported for cropping.")
-        return
+        # create slicing indices
+        slices = tuple(
+            slice(first, last + 1) if first != last else slice(0, None)
+            for first, last in np.stack([start, stop]).astype(int).T
+        )
+        cropped_data = layer_data[slices]
 
     layer_props["name"] = layer_props["name"] + " (cropped)"
     if layer_type == "image":
