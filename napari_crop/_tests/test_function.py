@@ -12,12 +12,10 @@ arr_2d = np.arange(0, 25).reshape((5, 5))  # 2d case
 #        [20, 21, 22, 23, 24]])
 shapes = [
     np.array([[1, 1], [1, 3], [4, 3], [4, 1]]),
-    np.array([[0, 2], [4, 4], [4, 2], [2, 0]]),
 ]
-shape_types = ["rectangle", "polygon"]
+shape_types = ["rectangle"]
 crop_expected = [
     np.array([[6, 7, 8], [11, 12, 13], [16, 17, 18], [21, 22, 23]]),
-    np.array([[0, 0, 2, 0, 0],[0, 6, 7, 0, 0],[0, 11, 12, 13, 0],[0, 0, 17, 18, 0],[0, 0, 0, 0, 0]]),  # fmt: skip
 ]
 
 # rectangle crop
@@ -60,11 +58,10 @@ shape_data = [
     np.array([[2, 2], [2, 5], [4, 5], [4, 2]]),  # 2x3 crop
     np.array([[-2, -2], [-2, 5], [4, 5], [4, -2]]),  # neg crop
     np.array([[-100, -100], [-100, 100], [100, 100], [100, -100]]),  # oversided crop
-    np.array([[0, 2], [4, 4], [4, 2], [2, 0]]),  # diamond crop
 ]
-shape_types = ["rectangle", "rectangle", "rectangle", "polygon"]
 image_data_ids = ["2D_rgb", "2D_rgba", "2D", "3D", "6D"]
-shape_data_ids = ["2x3_crop", "neg_crop", "big_crop", "poly_crop"]
+shape_types = ["rectangle", "rectangle", "rectangle"]
+shape_data_ids = ["2x3_crop", "neg_crop", "big_crop"]
 
 
 @pytest.mark.parametrize("image_data,rgb", image_data, ids=image_data_ids)
@@ -86,38 +83,3 @@ def test_crop_function_nd(image_data, rgb, shape_data, shape_type, make_napari_v
     nlayers = len(viewer.layers)
     viewer.add_layer(crop_region(img_layer, shp_layer))
     assert len(viewer.layers) == nlayers + 1
-
-    # last two dimenions of output should match size of shape
-
-    # check that cropped is expected dimensions, assume the values are correct
-
-    # example with 6 dimensions:
-    # rectangle in XY plane at on z axis of first channel at time point zero of first scene
-    #    S  T  C  Z  Y  X
-    # [ [0, 0, 0, 0, 0, 0],
-    #   [0, 0, 0, 0, 0, 2],
-    #   [0, 0, 0, 0, 4, 2],
-    #   [0, 0, 0, 0, 4, 0] ]
-
-    # min and max values along each dimenions are
-    #   S  T  C  Z  Y  X
-    #  [0, 0, 0, 0, 0, 0] <- min = 'start'
-    #  [0, 0, 0, 0, 4, 2] <- max = 'stop'
-
-    # stacking these arrays gives
-    #    S  T  C  Z  Y  X
-    # [ [0, 0, 0, 0, 0, 0],  <- min
-    #   [0, 0, 0, 0, 4, 2] ] <- max
-
-    # transposing gives
-    #   min  max
-    # [ [0,  0],  <- S
-    #   [0,  0],  <- T
-    #   [0,  0],  <- C
-    #   [0,  0],  <- Z
-    #   [0,  4],  <- Y
-    #   [0,  2] ] <- X
-
-    # each pair represents a slice along the respective dimension
-    # slice stop is non-inclusive, so add 1
-    # (e.g. starts and stops at T=0, but `slice(0, 0)` would return nothing)
