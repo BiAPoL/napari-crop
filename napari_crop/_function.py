@@ -17,10 +17,8 @@ def napari_experimental_provide_function():
 def crop_region(
     layer: napari.layers.Layer,
     shapes_layer: napari.layers.Shapes,
-    viewer: napari.Viewer,
 ) -> napari.layers.Layer:
     if shapes_layer is None:
-        shapes_layer = viewer.add_shapes([])
         shapes_layer.mode = "add_rectangle"
         warnings.warn("Please annotate a region to crop.")
         return
@@ -59,6 +57,6 @@ def crop_region(
 
     layer_props["name"] = layer_props["name"] + " (cropped)"
     if layer_type == "image":
-        return viewer.add_image(cropped_data, **layer_props)
+        return napari.layers.Image(cropped_data, **layer_props)
     if layer_type == "labels":
-        return viewer.add_labels(cropped_data, **layer_props)
+        return napari.layers.Labels(cropped_data, **layer_props)
