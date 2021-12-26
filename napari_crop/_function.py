@@ -51,6 +51,6 @@ def crop_region(layer: napari.layers.Layer, shapes_layer: napari.layers.Shapes, 
 
     layer_props["name"] = layer_props["name"] + " (cropped)"
     if layer_type == "image":
-        viewer.add_image(cropped_data, **layer_props)
+        return viewer.add_image(cropped_data, **layer_props)
     if layer_type == "labels":
-        viewer.add_labels(cropped_data, **layer_props)
+        return viewer.add_labels(cropped_data, **layer_props)
