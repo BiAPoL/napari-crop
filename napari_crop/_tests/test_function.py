@@ -4,21 +4,34 @@ import numpy as np
 
 
 arr_2d = np.arange(0, 25).reshape((5, 5))  # 2d case
+
 # array([[ 0,  1,  2,  3,  4],
 #        [ 5,  6,  7,  8,  9],
 #        [10, 11, 12, 13, 14],
 #        [15, 16, 17, 18, 19],
 #        [20, 21, 22, 23, 24]])
-shapes = [np.array([[1, 1], [1, 3], [4, 3], [4, 1]])]
-shape_types = [
-    "rectangle",
+shapes = [
+    np.array([[1, 1], [1, 3], [4, 3], [4, 1]]),
+    np.array([[0, 2], [4, 4], [4, 2], [2, 0]]),
 ]
-crop_expected = [np.array([[6, 7, 8], [11, 12, 13], [16, 17, 18], [21, 22, 23]])]
+shape_types = ["rectangle", "polygon"]
+crop_expected = [
+    np.array([[6, 7, 8], [11, 12, 13], [16, 17, 18], [21, 22, 23]]),
+    np.array([[0, 0, 2, 0, 0],[0, 6, 7, 0, 0],[0, 11, 12, 13, 0],[0, 0, 17, 18, 0],[0, 0, 0, 0, 0]]),  # fmt: skip
+]
+
 # rectangle crop
 # array([[ 6,  7,  8],
 #        [11, 12, 13],
 #        [16, 17, 18],
 #        [21, 22, 23]])
+
+# diamond crop (bool mask based on napari.layers.Shapes.to_mask())
+# array([[ 0,  0,  2,  0,  0],
+#        [ 0,  6,  7,  0,  0],
+#        [ 0, 11, 12, 13,  0],
+#        [ 0,  0, 17, 18,  0],
+#        [ 0,  0,  0,  0,  0]])
 
 
 @pytest.mark.parametrize(
@@ -32,7 +45,7 @@ def test_crop_function_values_2d(make_napari_viewer, shape, shape_type, crop_exp
     viewer = make_napari_viewer()
     img_layer = viewer.add_image(arr_2d)
     shapes_layer = viewer.add_shapes(shape, shape_type=shape_type)
-    cropped_actual = crop_region(img_layer, shapes_layer, viewer)
+    cropped_actual = crop_region(img_layer, shapes_layer)
     assert np.array_equal(crop_expected, cropped_actual.data)
 
 
@@ -47,10 +60,11 @@ shape_data = [
     np.array([[2, 2], [2, 5], [4, 5], [4, 2]]),  # 2x3 crop
     np.array([[-2, -2], [-2, 5], [4, 5], [4, -2]]),  # neg crop
     np.array([[-100, -100], [-100, 100], [100, 100], [100, -100]]),  # oversided crop
+    np.array([[0, 2], [4, 4], [4, 2], [2, 0]]),  # diamond crop
 ]
-shape_types = ["rectangle", "rectangle", "rectangle"]
+shape_types = ["rectangle", "rectangle", "rectangle", "polygon"]
 image_data_ids = ["2D_rgb", "2D_rgba", "2D", "3D", "6D"]
-shape_data_ids = ["2x3_crop", "neg_crop", "big_crop"]
+shape_data_ids = ["2x3_crop", "neg_crop", "big_crop", "poly_crop"]
 
 
 @pytest.mark.parametrize("image_data,rgb", image_data, ids=image_data_ids)
@@ -64,9 +78,46 @@ def test_crop_function_nd(image_data, rgb, shape_data, shape_type, make_napari_v
 
     # shape data is (N,D) array where N is num verts and D is num dims
     diff_dims = image_data.ndim - shape_data.shape[1]
+    # if rgb:
+    #     diff_dims -= 1
     shape_data = np.insert(shape_data, [-1], np.zeros(diff_dims), axis=1)
     shp_layer = viewer.add_shapes(shape_data, shape_type=shape_type)
 
     nlayers = len(viewer.layers)
-    crop_region(img_layer, shp_layer, viewer)
+    viewer.add_layer(crop_region(img_layer, shp_layer))
     assert len(viewer.layers) == nlayers + 1
+
+    # last two dimenions of output should match size of shape
+
+    # check that cropped is expected dimensions, assume the values are correct
+
+    # example with 6 dimensions:
+    # rectangle in XY plane at on z axis of first channel at time point zero of first scene
+    #    S  T  C  Z  Y  X
+    # [ [0, 0, 0, 0, 0, 0],
+    #   [0, 0, 0, 0, 0, 2],
+    #   [0, 0, 0, 0, 4, 2],
+    #   [0, 0, 0, 0, 4, 0] ]
+
+    # min and max values along each dimenions are
+    #   S  T  C  Z  Y  X
+    #  [0, 0, 0, 0, 0, 0] <- min = 'start'
+    #  [0, 0, 0, 0, 4, 2] <- max = 'stop'
+
+    # stacking these arrays gives
+    #    S  T  C  Z  Y  X
+    # [ [0, 0, 0, 0, 0, 0],  <- min
+    #   [0, 0, 0, 0, 4, 2] ] <- max
+
+    # transposing gives
+    #   min  max
+    # [ [0,  0],  <- S
+    #   [0,  0],  <- T
+    #   [0,  0],  <- C
+    #   [0,  0],  <- Z
+    #   [0,  4],  <- Y
+    #   [0,  2] ] <- X
+
+    # each pair represents a slice along the respective dimension
+    # slice stop is non-inclusive, so add 1
+    # (e.g. starts and stops at T=0, but `slice(0, 0)` would return nothing)
