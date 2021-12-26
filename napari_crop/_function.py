@@ -24,7 +24,7 @@ def crop_region(layer: napari.layers.Layer, shapes_layer: napari.layers.Shapes, 
         warnings.warn("Please select an image or labels layer to crop.")
         return
 
-    data = layer.data
+    data, layer_props, layer_type = layer.as_layer_data_tuple()
 
     rectangle = viewer.layers[1].data[-1]
     start_position = rectangle.min(axis=0)
@@ -55,20 +55,8 @@ def crop_region(layer: napari.layers.Layer, shapes_layer: napari.layers.Shapes, 
         warnings.warn("Data with " + str(len(data.shape)) + " dimensions not supported for cropping.")
         return
 
-    if isinstance(layer, napari.layers.Image):
-        new_layer = viewer.add_image(cropped_data,
-            name = layer.name + "(cropped)",
-            opacity = layer.opacity,
-            gamma = layer.gamma,
-            contrast_limits = layer.contrast_limits,
-            colormap = layer.colormap,
-            blending = layer.blending,
-            interpolation = layer.interpolation,
-        )
-    else : # labels
-        new_layer = viewer.add_labels(
-            np.asarray(cropped_data),
-            opacity=layer.opacity,
-            blending=layer.blending,
-        )
-        new_layer.contour = layer.contour
+    layer_props["name"] = layer_props["name"] + " (cropped)"
+    if layer_type == "image":
+        viewer.add_image(cropped_data, **layer_props)
+    if layer_type == "labels":
+        viewer.add_labels(cropped_data, **layer_props)
