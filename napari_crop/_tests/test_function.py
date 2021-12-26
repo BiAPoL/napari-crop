@@ -87,9 +87,6 @@ def test_crop_function_nd(image_data, rgb, shape_data, shape_type, make_napari_v
     viewer.add_layer(crop_region(img_layer, shp_layer))
     assert len(viewer.layers) == nlayers + 1
 
-    # last two dimenions of output should match size of shape
-
-    # check that cropped is expected dimensions, assume the values are correct
 
     # example with 6 dimensions:
     # rectangle in XY plane at on z axis of first channel at time point zero of first scene
