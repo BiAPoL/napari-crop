@@ -18,7 +18,7 @@ def crop_region(
     layer: napari.layers.Layer,
     shapes_layer: napari.layers.Shapes,
     viewer: napari.Viewer,
-):
+) -> napari.layers.Layer:
     if shapes_layer is None:
         shapes_layer = viewer.add_shapes([])
         shapes_layer.mode = "add_rectangle"
