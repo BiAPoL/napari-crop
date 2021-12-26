@@ -12,15 +12,23 @@ import napari
 def napari_experimental_provide_function():
     return [crop_region]
 
+
 @register_function(menu="Utilities > Crop region")
-def crop_region(layer: napari.layers.Layer, shapes_layer: napari.layers.Shapes, viewer : napari.Viewer):
+def crop_region(
+    layer: napari.layers.Layer,
+    shapes_layer: napari.layers.Shapes,
+    viewer: napari.Viewer,
+):
     if shapes_layer is None:
         shapes_layer = viewer.add_shapes([])
-        shapes_layer.mode = 'add_rectangle'
+        shapes_layer.mode = "add_rectangle"
         warnings.warn("Please annotate a region to crop.")
         return
 
-    if not(isinstance(layer, napari.layers.Image) or isinstance(layer, napari.layers.Labels)):
+    if not (
+        isinstance(layer, napari.layers.Image)
+        or isinstance(layer, napari.layers.Labels)
+    ):
         warnings.warn("Please select an image or labels layer to crop.")
         return
 
