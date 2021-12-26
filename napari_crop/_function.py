@@ -18,6 +18,7 @@ def crop_region(
     layer: napari.layers.Layer,
     shapes_layer: napari.layers.Shapes,
 ) -> napari.layers.Layer:
+
     if shapes_layer is None:
         shapes_layer.mode = "add_rectangle"
         warnings.warn("Please annotate a region to crop.")
@@ -54,6 +55,18 @@ def crop_region(
             for first, last in np.stack([start, stop]).astype(int).T
         )
         cropped_data = layer_data[slices]
+
+        # TODO get this part working for RGB and from orthogonal views
+        if shape_type != "rectangle":
+            # set pixels outside shape to zero
+            mask2D = (
+                napari.layers.Shapes(shape - start, shape_type=shape_type)
+                .to_masks()
+                .squeeze()
+            )
+
+            mask = np.broadcast_to(mask2D, cropped_data.shape)
+            cropped_data[~mask] = 0
 
     layer_props["name"] = layer_props["name"] + " (cropped)"
     if layer_type == "image":
