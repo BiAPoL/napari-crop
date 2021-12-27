@@ -54,18 +54,22 @@ def crop_region(
             slice(first, last + 1) if first != last else slice(0, None)
             for first, last in np.stack([start, stop]).astype(int).T
         )
-        cropped_data = layer_data[slices]
+        cropped_data = layer_data[slices].copy()
 
-        # TODO get this part working for RGB and from orthogonal views
         if shape_type != "rectangle":
-            # set pixels outside shape to zero
-            mask2D = (
-                napari.layers.Shapes(shape - start, shape_type=shape_type)
+            mask_nD_shape = np.array([1 if slc.stop == None else (slc.stop - slc.start) for slc in slices])
+            # remove extra dimensions from shape vertices (draw in a single plane)
+            verts_flat = np.array(shape - start)[:, mask_nD_shape > 1]
+            # get a 2D mask
+            mask_2D = (
+                napari.layers.Shapes(verts_flat, shape_type=shape_type)
                 .to_masks()
                 .squeeze()
             )
-
-            mask = np.broadcast_to(mask2D, cropped_data.shape)
+            # add back dimensions of the original vertices
+            mask_nD = mask_2D.reshape(mask_nD_shape)
+            # broadcast the mask to the shape of the cropped image
+            mask = np.broadcast_to(mask_nD, cropped_data.shape)
             cropped_data[~mask] = 0
 
     layer_props["name"] = layer_props["name"] + " (cropped)"
