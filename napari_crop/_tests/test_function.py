@@ -86,35 +86,3 @@ def test_crop_function_nd(image_data, rgb, shape_data, shape_type, make_napari_v
     nlayers = len(viewer.layers)
     viewer.add_layer(crop_region(img_layer, shp_layer))
     assert len(viewer.layers) == nlayers + 1
-
-
-    # example with 6 dimensions:
-    # rectangle in XY plane at on z axis of first channel at time point zero of first scene
-    #    S  T  C  Z  Y  X
-    # [ [0, 0, 0, 0, 0, 0],
-    #   [0, 0, 0, 0, 0, 2],
-    #   [0, 0, 0, 0, 4, 2],
-    #   [0, 0, 0, 0, 4, 0] ]
-
-    # min and max values along each dimenions are
-    #   S  T  C  Z  Y  X
-    #  [0, 0, 0, 0, 0, 0] <- min = 'start'
-    #  [0, 0, 0, 0, 4, 2] <- max = 'stop'
-
-    # stacking these arrays gives
-    #    S  T  C  Z  Y  X
-    # [ [0, 0, 0, 0, 0, 0],  <- min
-    #   [0, 0, 0, 0, 4, 2] ] <- max
-
-    # transposing gives
-    #   min  max
-    # [ [0,  0],  <- S
-    #   [0,  0],  <- T
-    #   [0,  0],  <- C
-    #   [0,  0],  <- Z
-    #   [0,  4],  <- Y
-    #   [0,  2] ] <- X
-
-    # each pair represents a slice along the respective dimension
-    # slice stop is non-inclusive, so add 1
-    # (e.g. starts and stops at T=0, but `slice(0, 0)` would return nothing)
