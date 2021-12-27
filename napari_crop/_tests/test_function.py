@@ -51,17 +51,17 @@ image_data = [
     [np.random.random((8, 8, 3)), True],  # 2d rgb
     [np.random.random((8, 8, 4)), True],  # 2d rgba
     [np.random.random((8, 8)), False],  # 2d
-    [np.random.random((2, 8, 8)), False],  # 3d
-    [np.random.random((2, 2, 2, 2, 8, 8)), False],  # 6d
+    [np.random.random((8, 8, 8)), False],  # 3d
+    [np.random.random((8, 8, 8, 8)), False],  # 4d
 ]
 shape_data = [
     np.array([[2, 2], [2, 5], [4, 5], [4, 2]]),  # 2x3 crop
     np.array([[-2, -2], [-2, 5], [4, 5], [4, -2]]),  # neg crop
     np.array([[-100, -100], [-100, 100], [100, 100], [100, -100]]),  # oversided crop
 ]
-image_data_ids = ["2D_rgb", "2D_rgba", "2D", "3D", "6D"]
-shape_types = ["rectangle", "rectangle", "rectangle"]
-shape_data_ids = ["2x3_crop", "neg_crop", "big_crop"]
+shape_types = ["rectangle", "rectangle", "rectangle", "polygon"]
+image_data_ids = ["2D_rgb", "2D_rgba", "2D", "3D", "4D"]
+shape_data_ids = ["2x3_crop", "neg_crop", "big_crop", "poly_crop"]
 
 
 @pytest.mark.parametrize("image_data,rgb", image_data, ids=image_data_ids)
@@ -75,8 +75,8 @@ def test_crop_function_nd(image_data, rgb, shape_data, shape_type, make_napari_v
 
     # shape data is (N,D) array where N is num verts and D is num dims
     diff_dims = image_data.ndim - shape_data.shape[1]
-    # if rgb:
-    #     diff_dims -= 1
+    if rgb:
+        diff_dims -= 1
     shape_data = np.insert(shape_data, [-1], np.zeros(diff_dims), axis=1)
     shp_layer = viewer.add_shapes(shape_data, shape_type=shape_type)
 
