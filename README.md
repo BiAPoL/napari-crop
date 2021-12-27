@@ -7,7 +7,7 @@
 [![codecov](https://codecov.io/gh/haesleinhuepf/napari-crop/branch/master/graph/badge.svg)](https://codecov.io/gh/haesleinhuepf/napari-crop)
 
 Crop regions in napari manually
-
+ 
 ![](https://github.com/haesleinhuepf/napari-crop/raw/main/images/screencast.gif)
 
 ## Usage
