@@ -36,26 +36,24 @@ def crop_region(
     shape_types = shapes_layer.shape_type
     shapes = shapes_layer.data
     for shape, shape_type in zip(shapes, shape_types):
-        # round shape vertices to integer, not sure if necessary here
-        shape = np.round(shape)
-
+        # removes an artifact when creating an ellipse mask
+        shape = np.ceil(shape)
         # move shape vertices to within image coordinate limits
         layer_shape = np.array(layer_data.shape)
         if layer_props["rgb"]:
             layer_shape = layer_shape[:-1]
         shape = np.max([shape, np.zeros(shape.shape)], axis=0)
         shape = np.min([shape, np.resize(layer_shape, shape.shape)], axis=0)
-
+        # find min and max for each dimension
         start = np.min(shape, axis=0)
         stop = np.max(shape, axis=0)
-
         # create slicing indices
         slices = tuple(
             slice(first, last + 1) if first != last else slice(0, None)
             for first, last in np.stack([start, stop]).astype(int).T
         )
         cropped_data = layer_data[slices].copy()
-
+        # handle polygons
         if shape_type != "rectangle":
             mask_nD_shape = np.array(
                 [1 if slc.stop == None else (slc.stop - slc.start) for slc in slices]
@@ -64,7 +62,7 @@ def crop_region(
             verts_flat = np.array(shape - start)[:, mask_nD_shape > 1]
             # get a 2D mask
             mask_2D = (
-                napari.layers.Shapes(verts_flat, shape_type=shape_type)
+                napari.layers.Shapes(verts_flat.astype(int), shape_type=shape_type)
                 .to_masks()
                 .squeeze()
             )
