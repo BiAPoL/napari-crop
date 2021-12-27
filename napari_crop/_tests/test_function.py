@@ -12,10 +12,12 @@ arr_2d = np.arange(0, 25).reshape((5, 5))  # 2d case
 #        [20, 21, 22, 23, 24]])
 shapes = [
     np.array([[1, 1], [1, 3], [4, 3], [4, 1]]),
+    np.array([[0, 2], [4, 4], [4, 2], [2, 0]]),
 ]
-shape_types = ["rectangle"]
+shape_types = ["rectangle", "polygon"]
 crop_expected = [
     np.array([[6, 7, 8], [11, 12, 13], [16, 17, 18], [21, 22, 23]]),
+    np.array([[0, 0, 2, 0, 0],[0, 6, 7, 0, 0],[0, 11, 12, 13, 0],[0, 0, 17, 18, 0],[0, 0, 0, 0, 0]]),  # fmt: skip
 ]
 
 # rectangle crop
@@ -58,6 +60,7 @@ shape_data = [
     np.array([[2, 2], [2, 5], [4, 5], [4, 2]]),  # 2x3 crop
     np.array([[-2, -2], [-2, 5], [4, 5], [4, -2]]),  # neg crop
     np.array([[-100, -100], [-100, 100], [100, 100], [100, -100]]),  # oversided crop
+    np.array([[0, 2], [4, 4], [4, 2], [2, 0]]),  # diamond crop
 ]
 shape_types = ["rectangle", "rectangle", "rectangle", "polygon"]
 image_data_ids = ["2D_rgb", "2D_rgba", "2D", "3D", "4D"]
