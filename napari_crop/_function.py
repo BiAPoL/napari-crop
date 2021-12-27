@@ -62,7 +62,7 @@ def crop_region(
             verts_flat = np.array(shape - start)[:, mask_nD_shape > 1]
             # get a 2D mask
             mask_2D = (
-                napari.layers.Shapes(verts_flat.astype(int), shape_type=shape_type)
+                napari.layers.Shapes(verts_flat, shape_type=shape_type)
                 .to_masks()
                 .squeeze()
             )
