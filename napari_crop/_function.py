@@ -57,7 +57,9 @@ def crop_region(
         cropped_data = layer_data[slices].copy()
 
         if shape_type != "rectangle":
-            mask_nD_shape = np.array([1 if slc.stop == None else (slc.stop - slc.start) for slc in slices])
+            mask_nD_shape = np.array(
+                [1 if slc.stop == None else (slc.stop - slc.start) for slc in slices]
+            )
             # remove extra dimensions from shape vertices (draw in a single plane)
             verts_flat = np.array(shape - start)[:, mask_nD_shape > 1]
             # get a 2D mask
@@ -66,6 +68,9 @@ def crop_region(
                 .to_masks()
                 .squeeze()
             )
+            # add back the rgb(a) dimension
+            if layer_props["rgb"]:
+                mask_nD_shape = np.append(mask_nD_shape, 1)
             # add back dimensions of the original vertices
             mask_nD = mask_2D.reshape(mask_nD_shape)
             # broadcast the mask to the shape of the cropped image
