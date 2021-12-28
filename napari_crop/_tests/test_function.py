@@ -76,7 +76,10 @@ def test_crop_function_nd(
 ):
     viewer = make_napari_viewer()
 
-    img_layer = viewer.add_image(layer_data, rgb=rgb)
+    if layer_type == "image":
+        layer = viewer.add_image(layer_data, rgb=rgb)
+    elif layer_type == "labels":
+        layer = viewer.add_labels(layer_data)
 
     # shape data is (N,D) array where N is num verts and D is num dims
     diff_dims = layer_data.ndim - shape_data.shape[1]
@@ -86,5 +89,5 @@ def test_crop_function_nd(
     shapes_layer = viewer.add_shapes(shape_data, shape_type=shape_type)
 
     nlayers = len(viewer.layers)
-    viewer.add_layer(crop_region(img_layer, shapes_layer))
+    viewer.add_layer(crop_region(layer, shapes_layer))
     assert len(viewer.layers) == nlayers + 1
