@@ -59,7 +59,7 @@ image_data = [
 shape_data = [
     np.array([[2, 2], [2, 5], [4, 5], [4, 2]]),  # 2x3 crop
     np.array([[-2, -2], [-2, 5], [4, 5], [4, -2]]),  # neg crop
-    np.array([[-100, -100], [-100, 100], [100, 100], [100, -100]]),  # oversided crop
+    np.array([[-100, -100], [-100, 100], [100, 100], [100, -100]]),  # oversized crop
     np.array([[0, 2], [4, 4], [4, 2], [2, 0]]),  # diamond crop
 ]
 shape_types = ["rectangle", "rectangle", "rectangle", "polygon"]
