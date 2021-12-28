@@ -76,9 +76,7 @@ def crop_region(
             # broadcast the mask to the shape of the cropped image
             mask = np.broadcast_to(mask_nD, cropped_data.shape)
             cropped_data[~mask] = 0
-        layer_props["name"] = layer_props["name"] + " (cropped)"
-        if layer_type == "image":
-            cropped_list.append((cropped_data, layer_props, 'image'))
-        if layer_type == "labels":
-            cropped_list.append((cropped_data, layer_props, 'labels'))
+        new_layer_props = layer_props.copy()
+        new_layer_props["name"] = layer_props["name"] + f" (cropped {count+1})"
+        cropped_list.append((cropped_data, new_layer_props, layer_type))
     return cropped_list
