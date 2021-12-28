@@ -10,6 +10,10 @@ Crop regions in napari manually
 
 ![](https://github.com/haesleinhuepf/napari-crop/raw/main/images/screencast.gif)
 
+Crop in any dimension
+
+![](https://github.com/tdmorello/napari-crop/blob/new-examples/images/side_crop.gif)
+
 ## Usage
 Create a new shapes layer to annotate the region you would like to crop:
 
