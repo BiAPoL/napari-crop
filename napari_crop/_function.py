@@ -4,7 +4,8 @@ import numpy as np
 from napari_plugin_engine import napari_hook_implementation
 from napari_tools_menu import register_function
 import napari
-
+from napari.types import LayerDataTuple
+from typing import List
 
 # This is the actual plugin function, where we export our function
 # (The functions themselves are defined below)
@@ -17,7 +18,7 @@ def napari_experimental_provide_function():
 def crop_region(
     layer: napari.layers.Layer,
     shapes_layer: napari.layers.Shapes,
-) -> napari.layers.Layer:
+) -> List[LayerDataTuple]:
 
     if shapes_layer is None:
         shapes_layer.mode = "add_rectangle"
@@ -35,6 +36,7 @@ def crop_region(
 
     shape_types = shapes_layer.shape_type
     shapes = shapes_layer.data
+    cropped_list = []
     for shape, shape_type in zip(shapes, shape_types):
         # removes an artifact when creating an ellipse mask
         shape = np.ceil(shape)
@@ -74,9 +76,9 @@ def crop_region(
             # broadcast the mask to the shape of the cropped image
             mask = np.broadcast_to(mask_nD, cropped_data.shape)
             cropped_data[~mask] = 0
-
-    layer_props["name"] = layer_props["name"] + " (cropped)"
-    if layer_type == "image":
-        return napari.layers.Image(cropped_data, **layer_props)
-    if layer_type == "labels":
-        return napari.layers.Labels(cropped_data, **layer_props)
+        layer_props["name"] = layer_props["name"] + " (cropped)"
+        if layer_type == "image":
+            cropped_list.append((cropped_data, layer_props, 'image'))
+        if layer_type == "labels":
+            cropped_list.append((cropped_data, layer_props, 'labels'))
+    return cropped_list
