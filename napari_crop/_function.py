@@ -37,7 +37,7 @@ def crop_region(
     shape_types = shapes_layer.shape_type
     shapes = shapes_layer.data
     cropped_list = []
-    for shape, shape_type in zip(shapes, shape_types):
+    for count, [shape, shape_type] in enumerate(zip(shapes, shape_types)):
         # removes an artifact when creating an ellipse mask
         shape = np.ceil(shape)
         # move shape vertices to within image coordinate limits
