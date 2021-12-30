@@ -96,8 +96,7 @@ shape_data_ids = ["2x3_crop", "neg_crop", "big_crop", "poly_crop"]
 @pytest.mark.parametrize(
     "shape_data,shape_type", zip(shape_data, shape_types), ids=shape_data_ids
 )
-
-def test_crop_function_nd(image_data, rgb, shape_data, shape_type,
+def test_crop_function_nd(layer_data, rgb, layer_type, shape_data, shape_type,
                           make_napari_viewer):
 
     viewer = make_napari_viewer()
@@ -117,7 +116,7 @@ def test_crop_function_nd(image_data, rgb, shape_data, shape_type,
     nlayers = len(viewer.layers)
 
     #  Get first tuple element (data) of first list element (LayerDataTuple)
-    cropped_data = crop_region(img_layer, shp_layer)[0][0]
+    cropped_data = crop_region(layer, shapes_layer)[0][0]
     viewer.add_image(cropped_data)
 
     assert len(viewer.layers) == nlayers + 1
