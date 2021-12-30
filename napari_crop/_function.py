@@ -34,6 +34,11 @@ def crop_region(
 
     layer_data, layer_props, layer_type = layer.as_layer_data_tuple()
 
+    try:
+        rgb = layer_props["rgb"]
+    except KeyError:
+        rgb = False
+
     shape_types = shapes_layer.shape_type
     shapes = shapes_layer.data
     cropped_list = []
@@ -42,7 +47,7 @@ def crop_region(
         shape = np.ceil(shape)
         # move shape vertices to within image coordinate limits
         layer_shape = np.array(layer_data.shape)
-        if layer_props["rgb"]:
+        if rgb:
             layer_shape = layer_shape[:-1]
         shape = np.max([shape, np.zeros(shape.shape)], axis=0)
         shape = np.min([shape, np.resize(layer_shape, shape.shape)], axis=0)
@@ -69,7 +74,7 @@ def crop_region(
                 .squeeze()
             )
             # add back the rgb(a) dimension
-            if layer_props["rgb"]:
+            if rgb:
                 mask_nD_shape = np.append(mask_nD_shape, 1)
             # add back dimensions of the original vertices
             mask_nD = mask_2D.reshape(mask_nD_shape)
