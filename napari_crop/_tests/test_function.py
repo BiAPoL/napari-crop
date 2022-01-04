@@ -12,10 +12,9 @@ arr_2d = np.arange(0, 25).reshape((5, 5))  # 2d case
 #        [20, 21, 22, 23, 24]])
 shapes = [
     np.array([[1, 1], [1, 3], [4, 3], [4, 1]]),
-    np.array([[0.5, 0.5], [0.5, 3.5], [4.51, 3.5], [4.51, 0.5]]),
     np.array([[0, 2], [4, 4], [4, 2], [2, 0]]),
 ]
-shape_types = ["rectangle", "ellipse", "polygon"]
+shape_types = ["rectangle", "polygon"]
 crop_expected = [
     np.array([[6, 7, 8], [11, 12, 13], [16, 17, 18], [21, 22, 23]]),
     np.array([[0, 7, 0], [11, 12, 13], [16, 17, 18], [0, 22, 0]]),
@@ -23,6 +22,7 @@ crop_expected = [
               [6, 7, 0],
               [11, 12, 13],
               [0, 17, 18]]),  # fmt: skip
+
 ]
 
 # rectangle crop
