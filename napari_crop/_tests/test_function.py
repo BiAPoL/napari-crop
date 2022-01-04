@@ -19,11 +19,10 @@ shape_types = ["rectangle", "ellipse", "polygon"]
 crop_expected = [
     np.array([[6, 7, 8], [11, 12, 13], [16, 17, 18], [21, 22, 23]]),
     np.array([[0, 7, 0], [11, 12, 13], [16, 17, 18], [0, 22, 0]]),
-    np.array([[0, 0, 2, 0, 0],
-              [0, 6, 7, 0, 0],
-              [0, 11, 12, 13, 0],
-              [0, 0, 17, 18, 0],
-              [0, 0, 0, 0, 0]]),  # fmt: skip
+    np.array([[0, 2, 0],
+              [6, 7, 0],
+              [11, 12, 13],
+              [0, 17, 18]]),  # fmt: skip
 ]
 
 # rectangle crop
@@ -39,11 +38,10 @@ crop_expected = [
 #        [0, 22, 0]])
 
 # diamond crop (bool mask based on napari.layers.Shapes.to_mask())
-# array([[ 0,  0,  2,  0,  0],
-#        [ 0,  6,  7,  0,  0],
-#        [ 0, 11, 12, 13,  0],
-#        [ 0,  0, 17, 18,  0],
-#        [ 0,  0,  0,  0,  0]])
+# array([[ 0,  2,  0],
+#        [ 6,  7,  0],
+#        [ 11, 12, 13],
+#        [ 0, 17, 18]])
 
 
 @pytest.mark.parametrize(
@@ -110,7 +108,7 @@ def test_crop_function_nd(layer_data, rgb, layer_type, shape_data, shape_type,
     diff_dims = layer_data.ndim - shape_data.shape[1]
     if rgb:
         diff_dims -= 1
-    shape_data = np.insert(shape_data, [-1], np.zeros(diff_dims), axis=1)
+    shape_data = np.insert(shape_data, [0], np.zeros(diff_dims), axis=1)
     shapes_layer = viewer.add_shapes(shape_data, shape_type=shape_type)
 
     nlayers = len(viewer.layers)
