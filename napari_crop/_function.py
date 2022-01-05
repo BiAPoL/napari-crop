@@ -14,7 +14,7 @@ def napari_experimental_provide_function():
     return [crop_region]
 
 
-@register_function(menu="Utilities > Crop region")
+@register_function(menu="Utilities > Crop region(s)")
 def crop_region(
     layer: napari.layers.Layer,
     shapes_layer: napari.layers.Shapes,
