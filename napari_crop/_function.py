@@ -7,12 +7,6 @@ import napari
 from napari.types import LayerDataTuple
 from typing import List
 
-# This is the actual plugin function, where we export our function
-# (The functions themselves are defined below)
-@napari_hook_implementation
-def napari_experimental_provide_function():
-    return [crop_region]
-
 
 @register_function(menu="Utilities > Crop region(s)")
 def crop_region(

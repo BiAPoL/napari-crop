@@ -1,0 +1,11 @@
+name: napari-crop
+schema_version: 0.1.0
+contributions:
+  commands:
+  - id: napari-crop.crop_region
+    title: Crop regions in napari defined by shapes.
+    python_name: napari_crop._function:crop_region
+  widgets:
+  - command: napari-crop.crop_region
+    display_name: crop region
+    autogenerate: true
