@@ -47,16 +47,18 @@ def crop_region(
         # create slicing indices
         slices = tuple(
             slice(first, last + 1) if first != last else slice(0, None)
-            for first, last in np.stack([start.clip(0),
-                                         stop.clip(0)]).astype(int).T
+            for first, last in np.stack([start.clip(0), stop.clip(0)]).astype(int).T
         )
         cropped_data = layer_data[slices].copy()
         # handle polygons
         if shape_type != "rectangle":
             mask_nD_shape = np.array(
-                [1 if slc.stop is None
-                 else (min(slc.stop, layer_data.shape[i]) - slc.start)
-                 for i, slc in enumerate(slices)]
+                [
+                    1
+                    if slc.stop is None
+                    else (min(slc.stop, layer_data.shape[i]) - slc.start)
+                    for i, slc in enumerate(slices)
+                ]
             )
             # remove extra dimensions from shape vertices
             # (draw in a single plane)
@@ -69,14 +71,15 @@ def crop_region(
             )
             # match cropped_data (x,y) shape with mask_2D shape
             if rgb:
-                shape_dif_2D = np.array(cropped_data.shape[-3:-1]) \
-                    - np.array(mask_2D.shape)
+                shape_dif_2D = np.array(cropped_data.shape[-3:-1]) - np.array(
+                    mask_2D.shape
+                )
             else:
-                shape_dif_2D = np.array(cropped_data.shape[-2:]) \
-                    - np.array(mask_2D.shape)
-            shape_dif_2D = [None if i == 0 else i
-                            for i in shape_dif_2D.tolist()]
-            mask_2D = mask_2D[:shape_dif_2D[-2], :shape_dif_2D[-1]]
+                shape_dif_2D = np.array(cropped_data.shape[-2:]) - np.array(
+                    mask_2D.shape
+                )
+            shape_dif_2D = [None if i == 0 else i for i in shape_dif_2D.tolist()]
+            mask_2D = mask_2D[: shape_dif_2D[-2], : shape_dif_2D[-1]]
             # add back the rgb(a) dimension
             if rgb:
                 mask_nD_shape = np.append(mask_nD_shape, 1)
