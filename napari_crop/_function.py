@@ -91,6 +91,11 @@ def crop_region(
             # broadcast the mask to the shape of the cropped image
             mask = np.broadcast_to(mask_nD, cropped_data.shape)
             # erase pixels outside drawn shape
+            try:
+                # convert dask array to numpy
+                cropped_data = cropped_data.compute().copy()
+            except AttributeError:
+                cropped_data = cropped_data.copy()
             cropped_data[~mask] = 0
 
             # trim zeros

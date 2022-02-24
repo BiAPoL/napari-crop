@@ -1,6 +1,13 @@
 from napari_crop._function import crop_region
 import pytest
 import numpy as np
+import dask.array as da
+
+
+@pytest.fixture
+def dask_sample_data():
+    data = np.arange(100_000).reshape(200, 500)
+    return da.from_array(data, chunks=(100, 100))
 
 
 arr_2d = np.arange(0, 25).reshape((5, 5))  # 2d case
@@ -23,7 +30,6 @@ crop_expected = [
               [6, 7, 0],
               [11, 12, 13],
               [0, 17, 18]]),  # fmt: skip
-
 ]
 
 # rectangle crop
@@ -50,8 +56,7 @@ crop_expected = [
     zip(shapes, shape_types, crop_expected),
     ids=shape_types,
 )
-def test_crop_function_values_2d(make_napari_viewer, shape, shape_type,
-                                 crop_expected):
+def test_crop_function_values_2d(make_napari_viewer, shape, shape_type, crop_expected):
     """Test that the cropped output is the expected array."""
 
     viewer = make_napari_viewer()
@@ -95,8 +100,9 @@ shape_data_ids = ["2x3_crop", "neg_crop", "big_crop", "poly_crop"]
 @pytest.mark.parametrize(
     "shape_data,shape_type", zip(shape_data, shape_types), ids=shape_data_ids
 )
-def test_crop_function_nd(layer_data, rgb, layer_type, shape_data, shape_type,
-                          make_napari_viewer):
+def test_crop_function_nd(
+    layer_data, rgb, layer_type, shape_data, shape_type, make_napari_viewer
+):
 
     viewer = make_napari_viewer()
 
@@ -119,3 +125,15 @@ def test_crop_function_nd(layer_data, rgb, layer_type, shape_data, shape_type,
     viewer.add_image(cropped_data)
 
     assert len(viewer.layers) == nlayers + 1
+
+
+def test_crop_dask(make_napari_viewer, dask_sample_data):
+    viewer = make_napari_viewer()
+    viewer.add_image(dask_sample_data)
+    assert isinstance(viewer.layers[0].data, da.Array)
+
+    ellipse = np.array([[50, 50], [50, 100], [100, 100], [100, 50]])
+    img = viewer.add_image(dask_sample_data)
+    shp = viewer.add_shapes(ellipse, shape_type="ellipse")
+    cropped = crop_region(img, shp)[0][0]
+    assert isinstance(cropped, np.ndarray)
