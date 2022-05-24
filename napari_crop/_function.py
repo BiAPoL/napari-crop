@@ -20,7 +20,7 @@ def crop_region(
     viewer: 'napari.viewer.Viewer',
     layer: napari.layers.Layer,
     shapes_layer: napari.layers.Shapes,
-) -> List[LayerDataTuple]:# napari.layers.Layer: #
+) -> List[LayerDataTuple]:
     """Crop regions in napari defined by shapes."""
     if shapes_layer is None:
         shapes_layer.mode = "add_rectangle"
