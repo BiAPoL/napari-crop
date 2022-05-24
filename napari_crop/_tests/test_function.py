@@ -57,7 +57,7 @@ def test_crop_function_values_2d(make_napari_viewer, shape, shape_type,
     viewer = make_napari_viewer()
     img_layer = viewer.add_image(arr_2d)
     shapes_layer = viewer.add_shapes(shape, shape_type=shape_type)
-    cropped_actual = crop_region(img_layer, shapes_layer)
+    cropped_actual = crop_region(viewer, img_layer, shapes_layer)
     cropped_actual_arrays = [cropped[0] for cropped in cropped_actual][0]
     assert np.array_equal(crop_expected, cropped_actual_arrays)
 
@@ -68,7 +68,7 @@ def test_crop_multiple_shapes(make_napari_viewer):
     viewer = make_napari_viewer()
     img_layer = viewer.add_image(arr_2d)
     shapes_layer = viewer.add_shapes(shapes, shape_type=shape_types)
-    cropped_actual = crop_region(img_layer, shapes_layer)
+    cropped_actual = crop_region(viewer, img_layer, shapes_layer)
 
     assert len(shapes) == len(cropped_actual)
 
@@ -115,7 +115,7 @@ def test_crop_function_nd(layer_data, rgb, layer_type, shape_data, shape_type,
     nlayers = len(viewer.layers)
 
     #  Get first tuple element (data) of first list element (LayerDataTuple)
-    cropped_data = crop_region(layer, shapes_layer)[0][0]
+    cropped_data = crop_region(viewer, layer, shapes_layer)[0][0]
     viewer.add_image(cropped_data)
 
     assert len(viewer.layers) == nlayers + 1
