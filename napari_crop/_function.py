@@ -17,9 +17,9 @@ def napari_experimental_provide_function():
 
 @register_function(menu="Utilities > Crop region(s)")
 def crop_region(
-    viewer: 'napari.viewer.Viewer',
     layer: napari.layers.Layer,
     shapes_layer: napari.layers.Shapes,
+    viewer: 'napari.viewer.Viewer' = None, 
 ) -> List[LayerDataTuple]:
     """Crop regions in napari defined by shapes."""
     if shapes_layer is None:
