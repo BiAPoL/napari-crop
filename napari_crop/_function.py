@@ -46,8 +46,10 @@ def crop_region(
     cropped_list = []
     new_layer_index = 0
     new_name = layer_props["name"] + " cropped [0]"
-    # Get existing layer names in viewer
-    names_list = [layer.name for layer in viewer.layers]
+    names_list = []
+    if viewer is not None:
+        # Get existing layer names in viewer
+        names_list = [layer.name for layer in viewer.layers]
     for shape_count, [shape, shape_type] in enumerate(zip(shapes,
                                                           shape_types)):
         # move shape vertices to within image coordinate limits
