@@ -5,6 +5,7 @@
 [![Python Version](https://img.shields.io/pypi/pyversions/napari-crop.svg?color=green)](https://python.org)
 [![tests](https://github.com/haesleinhuepf/napari-crop/workflows/tests/badge.svg)](https://github.com/haesleinhuepf/napari-crop/actions)
 [![codecov](https://codecov.io/gh/haesleinhuepf/napari-crop/branch/master/graph/badge.svg)](https://codecov.io/gh/haesleinhuepf/napari-crop)
+[![DOI](https://zenodo.org/badge/419822240.svg)](https://zenodo.org/badge/latestdoi/419822240)
 
 Crop regions in napari manually
 
