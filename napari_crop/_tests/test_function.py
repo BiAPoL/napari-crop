@@ -68,7 +68,7 @@ def test_crop_multiple_shapes(make_napari_viewer):
     viewer = make_napari_viewer()
     img_layer = viewer.add_image(arr_2d)
     shapes_layer = viewer.add_shapes(shapes, shape_type=shape_types)
-    cropped_actual = crop_region(img_layer, shapes_layer)
+    cropped_actual = crop_region(img_layer, shapes_layer, viewer=viewer)
 
     assert len(shapes) == len(cropped_actual)
 
