@@ -7,6 +7,7 @@ import napari
 from napari.types import LayerDataTuple
 from typing import List
 
+
 # This is the actual plugin function, where we export our function
 # (The functions themselves are defined below)
 @napari_hook_implementation
@@ -18,6 +19,7 @@ def napari_experimental_provide_function():
 def crop_region(
     layer: napari.layers.Layer,
     shapes_layer: napari.layers.Shapes,
+    viewer: 'napari.viewer.Viewer' = None, 
 ) -> List[LayerDataTuple]:
     """Crop regions in napari defined by shapes."""
     if shapes_layer is None:
@@ -42,7 +44,14 @@ def crop_region(
     shape_types = shapes_layer.shape_type
     shapes = shapes_layer.data
     cropped_list = []
-    for count, [shape, shape_type] in enumerate(zip(shapes, shape_types)):
+    new_layer_index = 0
+    new_name = layer_props["name"] + " cropped [0]"
+    names_list = []
+    if viewer is not None:
+        # Get existing layer names in viewer
+        names_list = [layer.name for layer in viewer.layers]
+    for shape_count, [shape, shape_type] in enumerate(zip(shapes,
+                                                          shape_types)):
         # move shape vertices to within image coordinate limits
         layer_shape = np.array(layer_data.shape)
         if rgb:
@@ -101,6 +110,16 @@ def crop_region(
             cropped_data = cropped_data[tuple(indices)]
 
         new_layer_props = layer_props.copy()
-        new_layer_props["name"] = layer_props["name"] + f" (cropped {count+1})"
+        # If layer name is in viewer or is about to be added,
+        # give it a different name
+        while True:
+            new_name = layer_props["name"] \
+                + f" cropped [{shape_count+new_layer_index}]"
+            if new_name not in names_list:
+                break
+            else:
+                new_layer_index += 1
+        new_layer_props["name"] = new_name
+        names_list.append(new_name)
         cropped_list.append((cropped_data, new_layer_props, layer_type))
     return cropped_list
