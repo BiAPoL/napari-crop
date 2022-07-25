@@ -83,11 +83,17 @@ def crop_region(
                 .squeeze()
             )
             # match cropped_data (x,y) shape with mask_2D shape
+            cropped_data_shape = cropped_data.shape
+            # Adjust cropped_data axes order in case axes were swapped in napari
+            if viewer is not None:
+                cropped_data_shape = np.moveaxis(cropped_data,
+                                                  viewer.dims.order,
+                                                  np.arange(len(cropped_data_shape))).shape
             if rgb:
-                shape_dif_2D = np.array(cropped_data.shape[-3:-1]) \
+                shape_dif_2D = np.array(cropped_data_shape[-3:-1]) \
                     - np.array(mask_2D.shape)
             else:
-                shape_dif_2D = np.array(cropped_data.shape[-2:]) \
+                shape_dif_2D = np.array(cropped_data_shape[-2:]) \
                     - np.array(mask_2D.shape)
             shape_dif_2D = [None if i == 0 else i
                             for i in shape_dif_2D.tolist()]
@@ -111,7 +117,7 @@ def crop_region(
 
         new_layer_props = layer_props.copy()
         # If layer name is in viewer or is about to be added,
-        # give it a different name
+        # increment layer name until it has a different name
         while True:
             new_name = layer_props["name"] \
                 + f" cropped [{shape_count+new_layer_index}]"
