@@ -23,8 +23,10 @@ crop_expected = [
               [ 0,  6,  7,  8,  0],
               [10, 11, 12, 13, 14],
               [ 0,  0, 17,  0,  0]]),  # fmt: skip
-
 ]
+bbox_expected = [(1.0, 5.0, 1.0, 4.0),
+                   (1.0, 5.0, 1.0, 4.0),
+                   (0.0, 4.0, 0.0, 5.0)]
 
 # rectangle crop
 # array([[ 6,  7,  8],
@@ -60,6 +62,22 @@ def test_crop_function_values_2d(make_napari_viewer, shape, shape_type,
     cropped_actual = crop_region(img_layer, shapes_layer)
     cropped_actual_arrays = [cropped[0] for cropped in cropped_actual][0]
     assert np.array_equal(crop_expected, cropped_actual_arrays)
+
+
+@pytest.mark.parametrize(
+    "shape,shape_type,bbox_expected",
+    zip(shapes, shape_types, bbox_expected)
+)
+def test_bbox_values(make_napari_viewer, shape, shape_type,
+                                 bbox_expected):
+    """Test that the bbox returned in metadata is correct."""
+
+    viewer = make_napari_viewer()
+    img_layer = viewer.add_image(arr_2d)
+    shapes_layer = viewer.add_shapes(shape, shape_type=shape_type)
+    cropped_actual = crop_region(img_layer, shapes_layer)[0][1] # get layer properties
+    bbox = cropped_actual['metadata']['bbox']
+    assert np.array_equal(bbox_expected, bbox)
 
 
 def test_crop_multiple_shapes(make_napari_viewer):
