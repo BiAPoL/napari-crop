@@ -110,12 +110,20 @@ def crop_region(
 
             # trim zeros
             non_zero = np.where(cropped_data != 0)
-            indices = [slice(min(i_nz), max(i_nz) + 1) for i_nz in non_zero]
+            slices = [slice(min(i_nz), max(i_nz) + 1) for i_nz in non_zero]
             if rgb:
-                indices[-1] = slice(None)
-            cropped_data = cropped_data[tuple(indices)]
+                slices[-1] = slice(None)
+            cropped_data = cropped_data[tuple(slices)]
 
         new_layer_props = layer_props.copy()
+        # Update start and stop values for bbox
+        start = [slc.start for slc in slices if slc is not None]
+        stop = [slc.stop for slc in slices if slc is not None]
+        # Add cropped coordinates as metadata
+        # bounding box: (min_row, max_row, min_col, max_col)
+        # Pixels belonging to the bounding box are in the half-open interval [min_row; max_row) and [min_col; max_col).
+        new_layer_props['metadata'] = {'bbox': (start[0], stop[0], start[1], stop[1])}
+
         # If layer name is in viewer or is about to be added,
         # increment layer name until it has a different name
         while True:
