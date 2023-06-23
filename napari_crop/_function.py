@@ -1,25 +1,21 @@
 import warnings
 
 import numpy as np
-from napari_plugin_engine import napari_hook_implementation
+from magicgui import magic_factory
 from napari_tools_menu import register_function
 import napari
 from napari.types import LayerDataTuple
 from typing import List
 
-
 # This is the actual plugin function, where we export our function
 # (The functions themselves are defined below)
-@napari_hook_implementation
-def napari_experimental_provide_function():
-    return [crop_region]
 
 
 @register_function(menu="Utilities > Crop region(s)")
 def crop_region(
     layer: napari.layers.Layer,
     shapes_layer: napari.layers.Shapes,
-    viewer: 'napari.viewer.Viewer' = None, 
+    viewer: 'napari.viewer.Viewer' = None,
 ) -> List[LayerDataTuple]:
     """Crop regions in napari defined by shapes."""
     if shapes_layer is None:
@@ -87,8 +83,8 @@ def crop_region(
             # Adjust cropped_data axes order in case axes were swapped in napari
             if viewer is not None:
                 cropped_data_shape = np.moveaxis(cropped_data,
-                                                  viewer.dims.order,
-                                                  np.arange(len(cropped_data_shape))).shape
+                                                 viewer.dims.order,
+                                                 np.arange(len(cropped_data_shape))).shape
             if rgb:
                 shape_dif_2D = np.array(cropped_data_shape[-3:-1]) \
                     - np.array(mask_2D.shape)
@@ -137,3 +133,51 @@ def crop_region(
         names_list.append(new_name)
         cropped_list.append((cropped_data, new_layer_props, layer_type))
     return cropped_list
+
+
+def cut_with_plane(image_to_be_cut, plane_normal, plane_position, positive_cut=True):
+    """Cut a 3D volume with a plane
+
+    Parameters
+    ----------
+    image_to_be_cut : array_like (3D)
+        3D image to be cut
+    plane_normal : tuple (3)
+        Normal vector of the plane
+    plane_position : tuple (3)
+        Position of the plane center
+    positive_cut : bool, optional
+        If True, the positive side of the plane is kept.
+        If False, the negative side of the plane is kept. By default True
+
+    Returns
+    -------
+    array_like (3D)
+        Cut image with the same shape as the input image
+    """
+    import numpy as np
+    if len(image_to_be_cut.shape) != 3:
+        print('Input image to be cut must be 3D')
+        return
+    image_to_be_cut = np.asarray(image_to_be_cut)
+
+    x = np.arange(image_to_be_cut.shape[2])
+    y = np.arange(image_to_be_cut.shape[1])
+    z = np.arange(image_to_be_cut.shape[0])
+
+    zmesh, ymesh, xmesh = np.meshgrid(z, y, x, indexing='ij')
+
+    xm = xmesh - plane_position[2]
+    ym = ymesh - plane_position[1]
+    zm = zmesh - plane_position[0]
+
+    p = xm * plane_normal[2] + ym * plane_normal[1] + zm * plane_normal[0]
+
+    if positive_cut:
+        mask = np.where(p >= 0, 1, 0).astype(bool)
+    else:
+        mask = np.where(p < 0, 1, 0).astype(bool)
+
+    image_cut = image_to_be_cut.copy()
+    image_cut[~mask] = 0
+    return image_cut

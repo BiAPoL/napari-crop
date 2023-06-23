@@ -1,4 +1,4 @@
-from napari_crop._function import crop_region
+from napari_crop._function import crop_region, cut_with_plane
 import pytest
 import numpy as np
 
@@ -19,14 +19,14 @@ shape_types = ["rectangle", "ellipse", "polygon"]
 crop_expected = [
     np.array([[6, 7, 8], [11, 12, 13], [16, 17, 18], [21, 22, 23]]),
     np.array([[0, 7, 0], [11, 12, 13], [16, 17, 18], [0, 22, 0]]),
-    np.array([[ 0,  0,  2,  0,  0],
-              [ 0,  6,  7,  8,  0],
+    np.array([[0, 0, 2, 0, 0],
+              [0, 6, 7, 8, 0],
               [10, 11, 12, 13, 14],
-              [ 0,  0, 17,  0,  0]]),  # fmt: skip
+              [0, 0, 17, 0, 0]]),  # fmt: skip
 ]
 bbox_expected = [(1.0, 5.0, 1.0, 4.0),
-                   (1.0, 5.0, 1.0, 4.0),
-                   (0.0, 4.0, 0.0, 5.0)]
+                 (1.0, 5.0, 1.0, 4.0),
+                 (0.0, 4.0, 0.0, 5.0)]
 
 # rectangle crop
 # array([[ 6,  7,  8],
@@ -69,13 +69,13 @@ def test_crop_function_values_2d(make_napari_viewer, shape, shape_type,
     zip(shapes, shape_types, bbox_expected)
 )
 def test_bbox_values(make_napari_viewer, shape, shape_type,
-                                 bbox_expected):
+                     bbox_expected):
     """Test that the bbox returned in metadata is correct."""
 
     viewer = make_napari_viewer()
     img_layer = viewer.add_image(arr_2d)
     shapes_layer = viewer.add_shapes(shape, shape_type=shape_type)
-    cropped_actual = crop_region(img_layer, shapes_layer)[0][1] # get layer properties
+    cropped_actual = crop_region(img_layer, shapes_layer)[0][1]  # get layer properties
     bbox = cropped_actual['metadata']['bbox']
     assert np.array_equal(bbox_expected, bbox)
 
@@ -137,3 +137,124 @@ def test_crop_function_nd(layer_data, rgb, layer_type, shape_data, shape_type,
     viewer.add_image(cropped_data)
 
     assert len(viewer.layers) == nlayers + 1
+
+# Tests for cut_with_plane function
+# Test different plane normal vectors
+
+
+volume_data = np.arange(27).reshape(3, 3, 3)
+plane_position_2 = (2, 2, 2)  # plane position coordinates
+
+plane_normal_z = (1, 0, 0)
+plane_normal_y = (0, 1, 0)
+plane_normal_x = (0, 0, 1)
+plane_normal_oblique = (0.5, 0.5, 0)
+plane_normal_list = [plane_normal_z, plane_normal_y, plane_normal_x, plane_normal_oblique]
+plane_normal_ids = ["z", "y", "x", "oblique"]
+
+output_expected_normal_z = np.array([
+    [[0, 0, 0,],
+     [0, 0, 0],
+     [0, 0, 0]],
+    [[0, 0, 0],
+     [0, 0, 0],
+     [0, 0, 0]],
+    [[18, 19, 20],
+     [21, 22, 23],
+     [24, 25, 26]]
+], dtype=volume_data.dtype)
+output_expected_normal_y = np.array([
+    [[0, 0, 0,],
+     [0, 0, 0],
+     [6, 7, 8]],
+    [[0, 0, 0],
+     [0, 0, 0],
+     [15, 16, 17]],
+    [[0, 0, 0],
+     [0, 0, 0],
+     [24, 25, 26]]
+], dtype=volume_data.dtype)
+output_expected_normal_x = np.array([
+    [[0, 0, 2,],
+     [0, 0, 5],
+     [0, 0, 8]],
+    [[0, 0, 11],
+     [0, 0, 14],
+     [0, 0, 17]],
+    [[0, 0, 20],
+     [0, 0, 23],
+     [0, 0, 26]]
+], dtype=volume_data.dtype)
+output_expected_normal_oblique = np.array([
+    [[0, 0, 0,],
+     [0, 0, 0],
+     [0, 0, 0]],
+    [[0, 0, 0],
+     [0, 0, 0],
+     [0, 0, 0]],
+    [[0, 0, 0],
+     [0, 0, 0],
+     [24, 25, 26]]
+], dtype=volume_data.dtype)
+output_expected_normal_list = [
+    output_expected_normal_z,
+    output_expected_normal_y,
+    output_expected_normal_x,
+    output_expected_normal_oblique]
+
+
+@pytest.mark.parametrize(
+    "plane_normal,output_expected_normal", zip(plane_normal_list, output_expected_normal_list), ids=plane_normal_ids
+)
+def test_cut_with_plane_normals(plane_normal, output_expected_normal):
+    image_cut = cut_with_plane(volume_data, plane_normal, plane_position_2)
+    assert np.array_equal(output_expected_normal, image_cut)
+
+
+# Test different plane positions
+plane_position_1 = (1, 1, 1)  # plane position coordinates
+plane_position_1_4 = (1.4, 1.4, 1.4)  # plane position coordinates
+plane_position_list = [plane_position_1, plane_position_1_4]
+plane_position_ids = ["position_1", "position_1_4"]
+
+output_expected_normal_z_position_1 = np.array([
+    [[0, 0, 0,],
+     [0, 0, 0],
+     [0, 0, 0]],
+    [[9, 10, 11],
+     [12, 13, 14],
+     [15, 16, 17]],
+    [[18, 19, 20],
+     [21, 22, 23],
+     [24, 25, 26]]
+], dtype=volume_data.dtype)
+output_expected_normal_z_position_1_4 = output_expected_normal_z
+
+output_expected_positions_list = [output_expected_normal_z_position_1, output_expected_normal_z_position_1_4]
+
+
+@pytest.mark.parametrize(
+    "plane_position,output_expected_position", zip(plane_position_list, output_expected_positions_list), ids=plane_position_ids
+)
+def test_cut_with_plane_position(plane_position, output_expected_position):
+    image_cut = cut_with_plane(volume_data, plane_normal_z, plane_position)
+    assert np.array_equal(output_expected_position, image_cut)
+
+
+# Test negative cut
+output_expected_normal_z_position_1_negative = np.array([
+    [[0, 1, 2,],
+     [3, 4, 5],
+     [6, 7, 8]],
+    [[0, 0, 0,],
+     [0, 0, 0],
+     [0, 0, 0]],
+    [[0, 0, 0,],
+     [0, 0, 0],
+     [0, 0, 0]],
+], dtype=volume_data.dtype)
+
+
+def test_cut_with_plane_negative():
+    image_cut = cut_with_plane(volume_data, plane_normal_z, plane_position_1, positive_cut=False)
+    assert np.array_equal(output_expected_normal_z_position_1_negative, image_cut)
