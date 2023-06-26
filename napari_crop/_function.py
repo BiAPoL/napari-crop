@@ -6,6 +6,7 @@ from napari_tools_menu import register_function
 import napari
 from napari.types import LayerDataTuple
 from typing import List
+from ._utils import compute_combined_slices
 
 # This is the actual plugin function, where we export our function
 # (The functions themselves are defined below)
@@ -105,20 +106,26 @@ def crop_region(
             cropped_data[~mask] = 0
 
             # trim zeros
-            non_zero = np.where(cropped_data != 0)
-            slices = [slice(min(i_nz), max(i_nz) + 1) for i_nz in non_zero]
-            if rgb:
-                slices[-1] = slice(None)
-            cropped_data = cropped_data[tuple(slices)]
+            inner_slices = get_nonzero_slices(cropped_data)
+            cropped_data = trim_zeros(cropped_data, rgb=rgb)
+            slices = compute_combined_slices(layer_shape, slices, inner_slices)
 
         new_layer_props = layer_props.copy()
         # Update start and stop values for bbox
         start = [slc.start for slc in slices if slc is not None]
-        stop = [slc.stop for slc in slices if slc is not None]
+        stop = []
+        for slc in slices:
+            if slc is not None:
+                if slc.stop is None:
+                    stop.append(layer_shape[slices.index(slc)])
+                else:
+                    stop.append(slc.stop)
+        # stop = [slc.stop for slc in slices if slc is not None]
         # Add cropped coordinates as metadata
-        # bounding box: (min_row, max_row, min_col, max_col)
+        # bounding box: ([min_z,] min_row, min_col, [max_z,] max_row, max_col)
         # Pixels belonging to the bounding box are in the half-open interval [min_row; max_row) and [min_col; max_col).
-        new_layer_props['metadata'] = {'bbox': (start[0], stop[0], start[1], stop[1])}
+        new_layer_props['metadata'] = {'bbox': tuple(start + stop)}
+        new_layer_props['translate'] = tuple(start)
 
         # If layer name is in viewer or is about to be added,
         # increment layer name until it has a different name
@@ -135,7 +142,19 @@ def crop_region(
     return cropped_list
 
 
-def cut_with_plane(image_to_be_cut, plane_normal, plane_position, positive_cut=True):
+def get_nonzero_slices(array):
+    non_zero = np.where(array != 0)
+    return [slice(min(i_nz), max(i_nz) + 1) for i_nz in non_zero]
+
+
+def trim_zeros(image, rgb=False):
+    slices = get_nonzero_slices(image)
+    if rgb:
+        slices[-1] = slice(None)
+    return image[tuple(slices)]
+
+
+def cut_with_plane(image_to_be_cut, plane_normal, plane_position, positive_cut=True, crop=False):
     """Cut a 3D volume with a plane
 
     Parameters
@@ -180,4 +199,6 @@ def cut_with_plane(image_to_be_cut, plane_normal, plane_position, positive_cut=T
 
     image_cut = image_to_be_cut.copy()
     image_cut[~mask] = 0
+    if crop:
+        image_cut = trim_zeros(image_cut)
     return image_cut
