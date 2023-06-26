@@ -81,7 +81,7 @@ class CutWithPlane(Container):
                                              blending='additive',
                                              opacity=0.5,
                                              scale=plane_layer.scale,
-                                             gamma=0.2,
+                                             gamma=0.4,
                                              contrast_limits=[0, plane_layer.data.max()],
                                              plane=plane_parameters
                                              )
