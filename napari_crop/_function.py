@@ -125,7 +125,7 @@ def crop_region(
         # bounding box: ([min_z,] min_row, min_col, [max_z,] max_row, max_col)
         # Pixels belonging to the bounding box are in the half-open interval [min_row; max_row) and [min_col; max_col).
         new_layer_props['metadata'] = {'bbox': tuple(start + stop)}
-        new_layer_props['translate'] = tuple(start)
+        new_layer_props['translate'] = tuple(start) * layer_props['scale']
 
         # If layer name is in viewer or is about to be added,
         # increment layer name until it has a different name
