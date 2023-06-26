@@ -11,7 +11,7 @@ from typing import List
 # (The functions themselves are defined below)
 
 
-@register_function(menu="Utilities > Crop region(s)")
+@register_function(menu="Utilities > Crop region(s) (napari-crop)")
 def crop_region(
     layer: napari.layers.Layer,
     shapes_layer: napari.layers.Shapes,

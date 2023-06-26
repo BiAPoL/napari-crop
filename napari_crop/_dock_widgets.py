@@ -19,7 +19,7 @@ def napari_experimental_provide_dock_widget():
     return [magic_factory(crop_region), CutWithPlane]
 
 
-@register_dock_widget(menu="Utilities > Cut volume with plane")
+@register_dock_widget(menu="Utilities > Cut volume with plane (napari-crop)")
 class CutWithPlane(Container):
     input_layer_types = (
         napari.layers.Image,
@@ -42,8 +42,6 @@ class CutWithPlane(Container):
             label='Layer to Be Cut:')
         self._viewer.layers.events.inserted.connect(self._layer_to_be_cut_combobox.reset_choices)
         self._viewer.layers.events.removed.connect(self._layer_to_be_cut_combobox.reset_choices)
-        # self._layer_to_be_cut_combobox = cast(ComboBox, create_widget(
-        #     annotation=napari.layers.Image, label='Layer to Be Cut:'))
         # Create plane data source combobox
         self._plane_data_source = plane_data_source
         self._plane_data_combobox = ComboBox(
@@ -76,7 +74,6 @@ class CutWithPlane(Container):
             'normal': tuple(self.plane_ortogonal_unity_vector_list[0]),
             'thickness': 1,
         }
-
         self._plane_layer = viewer.add_image(plane_layer.data,
                                              rendering='average',
                                              name='plane',
