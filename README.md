@@ -17,6 +17,8 @@ Crop in any dimension
 
 Cut a volume using a plane
 
+*Note: this functionality currently only works with 3D data*
+
 ![](https://github.com/haesleinhuepf/napari-crop/raw/main/images/napari_crop_cut_with_plane_demo.gif)
 
 ## Usage
