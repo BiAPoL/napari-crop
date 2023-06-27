@@ -195,7 +195,7 @@ class CutWithPlane(Container):
             meta={
                 'name': self._layer_to_be_cut_combobox.value.name + ' cut',
                 'scale': layer_to_be_cut.scale,
-                'translate': shift,
+                'translate': tuple(np.asarray(shift) * np.asarray(layer_to_be_cut.scale)),
                 'metadata': {'bbox': tuple(start + stop)},
             },
             layer_type=output_layer_type)
