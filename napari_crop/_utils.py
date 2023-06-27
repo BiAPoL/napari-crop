@@ -24,8 +24,6 @@ def compute_combined_slices(array_shape, slices1, slices2):
         # Compute the combined slice
         start = adjusted_slice1[0] + adjusted_slice2[0]
         stop = min(adjusted_slice1[1], adjusted_slice1[0] + adjusted_slice2[1])
-        print(adjusted_slice1, adjusted_slice2)
-        print(stop)
         step = adjusted_slice1[2] * adjusted_slice2[2]
         combined_slice = slice(start, stop, step)
 
