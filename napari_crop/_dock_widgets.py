@@ -28,7 +28,6 @@ class CutWithPlane(Container):
     def __init__(self, viewer: "napari.viewer.Viewer",
                  plane_data_source: str = 'reference_layer_data', positive_cut: bool = True, crop: bool = False):
         self._viewer = viewer
-        print(self._viewer.layers)
         # Create plane layer variable (needed for proper reference image combobox initialization)
         self._plane_layer = None
         # Create reference image combobox
@@ -146,8 +145,6 @@ class CutWithPlane(Container):
 
     def _on_image_layer_changed(self, new_layer: napari.layers.Image):
         '''Update plane layer data'''
-        print('new_layer: ', new_layer)
-        print(new_layer.data.shape)
         if self._plane_layer is None:
             self._add_plane_layer()
         self._update_plane_layer(new_layer)
