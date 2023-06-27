@@ -1,10 +1,6 @@
 
-__version__ = "0.1.7"
+__version__ = "0.1.8"
 
 
-
-
-
-from ._function import napari_experimental_provide_function
-from ._function import crop_region
-
+from ._dock_widgets import napari_experimental_provide_dock_widget
+from ._function import crop_region, cut_with_plane

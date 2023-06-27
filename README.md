@@ -13,7 +13,13 @@ Crop regions in napari manually
 
 Crop in any dimension
 
-![](https://github.com/haesleinhuepf/napari-crop/blob/main/images/side_crop.gif)
+![](https://github.com/haesleinhuepf/napari-crop/raw/main/images/side_crop.gif)
+
+Cut a volume using a plane
+
+*Note: this functionality currently only works with 3D data*
+
+![](https://github.com/haesleinhuepf/napari-crop/raw/main/images/napari_crop_cut_with_plane_demo.gif)
 
 ## Usage
 Create a new shapes layer to annotate the region you would like to crop:
