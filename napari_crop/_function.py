@@ -85,7 +85,7 @@ def crop_region(
             if viewer is not None:
                 cropped_data_shape = np.moveaxis(cropped_data,
                                                  viewer.dims.order,
-                                                 np.arange(len(cropped_data_shape))).shape
+                                                 np.arange(len(layer_shape))).shape
             if rgb:
                 shape_dif_2D = np.array(cropped_data_shape[-3:-1]) \
                     - np.array(mask_2D.shape)
