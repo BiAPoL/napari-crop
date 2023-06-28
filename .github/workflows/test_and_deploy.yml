@@ -28,25 +28,36 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+      - uses: goanpeca/setup-miniconda@v1
         with:
+          activate-environment: napari-crop-test-env
+          environment-file: etc/environment.yml
           python-version: ${{ matrix.python-version }}
+          condarc-file: etc/condarc.yml
+          auto-activate-base: false
+
+
+      # - name: Set up Python ${{ matrix.python-version }}
+      #   uses: actions/setup-python@v2
+      #   with:
+      #     python-version: ${{ matrix.python-version }}
 
       # these libraries enable testing on Qt on linux
       - uses: tlambert03/setup-qt-libs@v1
 
-      - name: Set up conda ${{ matrix.python-version }}
-        uses: conda-incubator/setup-miniconda@v2.0.0
-        with:
-          auto-update-conda: true
-          activate-environment: test
-          python-version: ${{ matrix.python-version }}
-          channels: conda-forge
+      # - name: Set up conda ${{ matrix.python-version }}
+      #   uses: conda-incubator/setup-miniconda@v2.0.0
+      #   with:
+      #     auto-update-conda: true
+      #     activate-environment: test
+      #     python-version: ${{ matrix.python-version }}
+      #     channels: conda-forge
 
       - name: Conda info
         shell: bash -l {0}
-        run: conda info
+        run: |
+          conda info
+          conda list
 
       # note: if you need dependencies from conda, considering using
       # setup-miniconda: https://github.com/conda-incubator/setup-miniconda
