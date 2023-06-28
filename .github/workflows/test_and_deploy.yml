@@ -22,19 +22,27 @@ jobs:
     runs-on: ${{ matrix.platform }}
     strategy:
       matrix:
-        platform: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: [3.8, 3.9]
+        platform: [ubuntu-latest, windows-latest]
+        python-version: ["3.8"]
 
     steps:
-      - uses: actions/checkout@v2
+      # - uses: actions/checkout@v2
 
       - uses: goanpeca/setup-miniconda@v1
         with:
-          activate-environment: napari-crop-test-env
-          environment-file: etc/environment.yml
+          auto-update-conda: true
           python-version: ${{ matrix.python-version }}
-          condarc-file: etc/condarc.yml
-          auto-activate-base: false
+      - name: Conda info
+        shell: bash -l {0}
+        run: conda info
+      - name: Conda list
+        shell: pwsh
+        run: conda list
+          # activate-environment: napari-crop-test-env
+          # environment-file: etc/environment.yml
+          # python-version: ${{ matrix.python-version }}
+          # condarc-file: etc/condarc.yml
+          # auto-activate-base: false
 
 
       # - name: Set up Python ${{ matrix.python-version }}
@@ -43,7 +51,7 @@ jobs:
       #     python-version: ${{ matrix.python-version }}
 
       # these libraries enable testing on Qt on linux
-      - uses: tlambert03/setup-qt-libs@v1
+      # - uses: tlambert03/setup-qt-libs@v1
 
       # - name: Set up conda ${{ matrix.python-version }}
       #   uses: conda-incubator/setup-miniconda@v2.0.0
@@ -53,11 +61,11 @@ jobs:
       #     python-version: ${{ matrix.python-version }}
       #     channels: conda-forge
 
-      - name: Conda info
-        shell: bash -l {0}
-        run: |
-          conda info
-          conda list
+      # - name: Conda info
+      #   shell: bash -l {0}
+      #   run: |
+      #     conda info
+      #     conda list
 
       # note: if you need dependencies from conda, considering using
       # setup-miniconda: https://github.com/conda-incubator/setup-miniconda
