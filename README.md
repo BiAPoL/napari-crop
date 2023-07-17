@@ -17,7 +17,11 @@ Crop in any dimension
 
 Cut a volume using a plane
 
-*Note: this functionality currently only works with 3D data*
+*Note:*
+
+*- this functionality currently only works with 3D data*
+
+*- to drag the plane, hold the 'SHIFT' key from your keyboard*
 
 ![](https://github.com/BiAPoL/napari-crop/raw/main/images/napari_crop_cut_with_plane_demo.gif)
 
