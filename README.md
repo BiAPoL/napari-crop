@@ -7,6 +7,9 @@
 [![codecov](https://codecov.io/gh/BiAPoL/napari-crop/branch/main/graph/badge.svg)](https://codecov.io/gh/BiAPoL/napari-crop)
 [![DOI](https://zenodo.org/badge/419822240.svg)](https://zenodo.org/badge/latestdoi/419822240)
 
+## Currently, this repository is not guaranteed to be actively maintained.
+If you are interested in further developing it, feel free to fork it.
+
 Crop regions in napari manually
 
 ![](https://github.com/BiAPoL/napari-crop/raw/main/images/screencast.gif)
