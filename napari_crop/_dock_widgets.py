@@ -2,21 +2,14 @@ import numpy as np
 
 from magicgui.widgets import Container, PushButton, ComboBox, CheckBox
 from typing import TYPE_CHECKING
-from napari_plugin_engine import napari_hook_implementation
 from skimage.segmentation import relabel_sequential
 from napari_tools_menu import register_dock_widget
-from magicgui import magic_factory
 
 from ._utils import array_allclose_in_list, find_array_allclose_position_in_list
-from ._function import cut_with_plane, crop_region, trim_zeros, get_nonzero_slices
+from ._function import cut_with_plane, trim_zeros, get_nonzero_slices
 import napari.layers
 if TYPE_CHECKING:
     import napari.viewer
-
-
-@napari_hook_implementation
-def napari_experimental_provide_dock_widget():
-    return [magic_factory(crop_region), CutWithPlane]
 
 
 @register_dock_widget(menu="Utilities > Cut volume with plane (napari-crop)")

@@ -1,7 +1,6 @@
 import warnings
 
 import numpy as np
-from magicgui import magic_factory
 from napari_tools_menu import register_function
 import napari
 from napari.types import LayerDataTuple
