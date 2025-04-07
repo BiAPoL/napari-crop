@@ -6,6 +6,7 @@ import napari
 from napari.types import LayerDataTuple
 from typing import List
 from ._utils import compute_combined_slices
+from magicgui import magic_factory
 
 # This is the actual plugin function, where we export our function
 # (The functions themselves are defined below)
@@ -202,3 +203,64 @@ def cut_with_plane(image_to_be_cut, plane_normal, plane_position, positive_cut=T
     if crop:
         image_cut = trim_zeros(image_cut)
     return image_cut
+
+@magic_factory(
+    call_button="Draw",
+    shape_type={"choices": ["rectangle", "ellipse"]},  # Dropdown for shape type
+    shape_size_x={"widget_type": "SpinBox", "min": 1, "max": 5000, "step": 1},
+    shape_size_y={"widget_type": "SpinBox", "min": 1, "max": 5000, "step": 1},
+)
+def draw_fixed_shapes(
+    points: napari.types.PointsData,
+    shape_type: str = "rectangle",
+    shape_size_x: int = 512,
+    shape_size_y: int = 512,
+    viewer: napari.Viewer = None,
+) -> napari.layers.Shapes:
+    """Create shapes of fixed size at points layer coordinates.
+    
+    Parameters
+    ----------
+    points : napari.types.PointsData
+        Coordinates of the points layer.
+    shape_type : str
+        Type of shape to create. Can be 'rectangle' or 'ellipse'.
+    shape_size_x : int
+        Width of the shape.
+    shape_size_y : int
+        Height of the shape.
+    viewer : napari.Viewer, optional
+        Viewer instance to use for the dimensions order.
+        
+    Returns
+    -------
+    Shapes
+        Shapes layer with the created shapes."""
+    if points is None:
+        raise ValueError("No points provided. Please select a points layer.")
+    dims_order = tuple(range(points.ndim))
+    if viewer is not None:
+        dims_order = viewer.dims.order
+    shape_size = (shape_size_y, shape_size_x)
+    odd_shape = [size % 2 for size in shape_size]
+    
+    shapes_data = []
+    for coord in points:
+        shape_data = np.array([
+            [coord[dims_order[-2]] - (shape_size[-2] // 2), coord[dims_order[-1]] - (shape_size[-1] // 2)],  # Top-left
+            [coord[dims_order[-2]] - (shape_size[-2] // 2), coord[dims_order[-1]] + (shape_size[-1] // 2) + odd_shape[-1]],  # Bottom-left
+            [coord[dims_order[-2]] + (shape_size[-2] // 2) + odd_shape[-2], coord[dims_order[-1]] + (shape_size[-1] // 2) + odd_shape[-1]],  # Bottom-right
+            [coord[dims_order[-2]] + (shape_size[-2] // 2) + odd_shape[-2], coord[dims_order[-1]] - (shape_size[-1] // 2)],  # Top-right
+        ])
+        # Insert extra coordinates for higher dimensions
+        # For example, if the shape is 3D, we need to add the z-coordinates
+        extra_coords = np.take(coord, indices=dims_order[:-2], axis=0)
+        for i, ec in enumerate(extra_coords):
+            shape_data = np.insert(shape_data, 0, round(ec), axis=-1)
+        shape_data = shape_data[:, np.argsort(dims_order)]
+        shapes_data.append(shape_data)
+    
+    return napari.layers.Shapes(
+        data=shapes_data,
+        shape_type=[shape_type for _ in points],
+    )
