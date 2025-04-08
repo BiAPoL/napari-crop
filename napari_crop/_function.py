@@ -263,4 +263,7 @@ def draw_fixed_shapes(
     return napari.layers.Shapes(
         data=shapes_data,
         shape_type=[shape_type for _ in points],
+        edge_color='red',
+        face_color='yellow',
+        edge_width=2,
     )
