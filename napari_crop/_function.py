@@ -16,9 +16,29 @@ from magicgui import magic_factory
 def crop_region(
     layer: napari.layers.Layer,
     shapes_layer: napari.layers.Shapes,
+    as_numpy: bool = False,
+    translate: bool = True,
     viewer: 'napari.viewer.Viewer' = None,
 ) -> List[LayerDataTuple]:
-    """Crop regions in napari defined by shapes."""
+    """Crop regions in napari defined by shapes.
+    
+    Parameters
+    ----------
+    layer : napari.layers.Layer
+        Layer to crop. Can be an image or labels layer.
+    shapes_layer : napari.layers.Shapes
+        Shapes layer defining the regions to crop.
+    as_numpy : bool, optional
+        If True, return the cropped data as numpy arrays. Default is False.
+    translate : bool, optional
+        If True, apply translation to the cropped data. Default is True.
+    viewer : napari.viewer.Viewer, optional
+        Viewer instance to use for the dimensions order.
+
+    Returns
+    -------
+
+    """
     if shapes_layer is None:
         shapes_layer.mode = "add_rectangle"
         warnings.warn("Please annotate a region to crop.")
@@ -126,7 +146,8 @@ def crop_region(
         # Pixels belonging to the bounding box are in the half-open interval [min_row; max_row) and [min_col; max_col).
         new_layer_props['metadata'] = {'bbox': tuple(start + stop)}
         # apply layer translation scaled by layer scaling factor
-        new_layer_props['translate'] = tuple(np.asarray(tuple(start)) * np.asarray(layer_props['scale']))
+        if translate:
+            new_layer_props['translate'] = tuple(np.asarray(tuple(start)) * np.asarray(layer_props['scale']))
 
         # If layer name is in viewer or is about to be added,
         # increment layer name until it has a different name
@@ -139,6 +160,8 @@ def crop_region(
                 new_layer_index += 1
         new_layer_props["name"] = new_name
         names_list.append(new_name)
+        if as_numpy:
+            cropped_data = np.asarray(cropped_data)
         cropped_list.append((cropped_data, new_layer_props, layer_type))
     return cropped_list
 
