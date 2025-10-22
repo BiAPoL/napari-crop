@@ -236,8 +236,8 @@ def cut_with_plane(image_to_be_cut, plane_normal, plane_position, positive_cut=T
 def draw_fixed_shapes(
     points: napari.types.PointsData,
     shape_type: str = "rectangle",
-    shape_size_x: int = 512,
-    shape_size_y: int = 512,
+    shape_size_x: int = 256,
+    shape_size_y: int = 256,
     viewer: napari.Viewer = None,
 ) -> napari.layers.Shapes:
     """Create shapes of fixed size at points layer coordinates.
@@ -286,7 +286,7 @@ def draw_fixed_shapes(
     return napari.layers.Shapes(
         data=shapes_data,
         shape_type=[shape_type for _ in points],
-        edge_color='red',
-        face_color='yellow',
+        edge_color='magenta',
+        face_color='#ffff0080', # semi-transparent yellow
         edge_width=2,
     )
