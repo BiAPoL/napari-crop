@@ -129,7 +129,8 @@ class CutWithPlane(Container):
         '''Get layers of type image or labels and excludes the plane layer'''
         # Currently accepts only 3D data
         return [layer for layer in self._viewer.layers if isinstance(
-            layer, self.input_layer_types) and layer != self._plane_layer and layer.rgb is False and layer.ndim == 3]
+            layer, self.input_layer_types) and layer != self._plane_layer and 
+            (not isinstance(layer, napari.layers.Image) or layer.rgb is False) and layer.ndim == 3]
 
     def _on_plane_data_source_changed(self, new_value: str):
         '''Update plane data source and plane layer data'''
