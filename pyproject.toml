@@ -1,12 +1,78 @@
+[project]
+name = "napari-crop"
+dynamic = ["version"]
+description = "Crop regions in napari manually"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    {name = "Robert Haase", email = "robert.haase@tu-dresden.de"},
+    {name = "Tim Morello"},
+    {name = "Marcelo Leomil Zoccoler"},
+    {name = "Johannes Soltwedel"},
+]
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Framework :: napari",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: BSD License",
+]
+dependencies = [
+    "napari-plugin-engine>=0.1.4",
+    "numpy",
+    "scikit-image",
+    "napari-tools-menu>=0.1.17",
+    "napari-workflows",
+]
+
+[project.optional-dependencies]
+testing = [
+    "tox",
+    "pytest",
+    "pytest-cov",
+    "pytest-qt",
+    "napari",
+    "pyqt5"
+]
+
+[project.entry-points."napari.manifest"]
+napari-crop = "napari_crop:napari.yaml"
+
+[project.urls]
+"Homepage" = "https://github.com/biapol/napari-crop"
+"Bug Tracker" = "https://github.com/biapol/napari-crop/issues"
+"Documentation" = "https://github.com/biapol/napari-crop#README.md"
+"Source Code" = "https://github.com/biapol/napari-crop"
+"User Support" = "https://github.com/biapol/napari-crop/issues"
+
 [build-system]
-requires = ["setuptools>=42.0.0", "wheel"]
+requires = ["setuptools>=64", "setuptools_scm", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+include-package-data = true
 
+[tool.setuptools.packages.find]
+include = ["napari_crop*"]
+
+[tool.setuptools.package-data]
+napari_crop = ["napari.yaml"]
+
+[tool.setuptools_scm]
+write_to = "napari_crop/_version.py"
+fallback_version = "0.1.9+nogit"
 
 [tool.black]
 line-length = 79
-target-version = ['py39', 'py310', 'py311', 'py312']
+target-version = ['py310', 'py311', 'py312']
 
 
 [tool.ruff]
@@ -52,5 +118,5 @@ exclude = [
     "*_vendor*",
 ]
 
-target-version = "py310"
+target-version = "py311"
 fix = true
