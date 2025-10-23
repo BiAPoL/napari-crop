@@ -1,0 +1,21 @@
+name: napari-crop
+schema_version: 0.2.1
+contributions:
+  commands:
+  - id: napari-crop.crop_region
+    title: Crop Region(s) with Shapes layer
+    python_name: napari_crop._function:crop_region
+  - id: napari-crop.CutWithPlane
+    title: Create Cut With Plane
+    python_name: napari_crop._dock_widgets:CutWithPlane
+  - id: napari-crop.draw_fixed_shapes
+    title: Draw shapes of fixed dimensions
+    python_name: napari_crop._function:draw_fixed_shapes
+  widgets:
+  - command: napari-crop.CutWithPlane
+    display_name: Cut With Plane
+  - command: napari-crop.crop_region
+    display_name: Crop Region(s)
+    autogenerate: true
+  - command: napari-crop.draw_fixed_shapes
+    display_name: Draw Fixed Shapes

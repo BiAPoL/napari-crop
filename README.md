@@ -7,8 +7,9 @@
 [![codecov](https://codecov.io/gh/BiAPoL/napari-crop/branch/main/graph/badge.svg)](https://codecov.io/gh/BiAPoL/napari-crop)
 [![DOI](https://zenodo.org/badge/419822240.svg)](https://zenodo.org/badge/latestdoi/419822240)
 
-## Currently, this repository is not guaranteed to be actively maintained.
-If you are interested in further developing it, feel free to fork it.
+🚨🚨🚨 **Call for maintainers** 🚨🚨🚨
+
+If you are interested in further developing it, please get in touch or create a fork.
 
 Crop regions in napari manually
 
@@ -28,12 +29,16 @@ Cut a volume using a plane
 
 ![](https://github.com/BiAPoL/napari-crop/raw/main/images/napari_crop_cut_with_plane_demo.gif)
 
+Draw shapes of fixed size at given coordinates for later cropping
+
+![](https://github.com/BiAPoL/napari-crop/raw/main/images/napari_crop_draw_shapes.gif)
+
 ## Usage
 Create a new shapes layer to annotate the region you would like to crop:
 
 ![](https://github.com/BiAPoL/napari-crop/raw/main/images/shapes.png)
 
-Use the rectangle tool to annotate a region. Start the `crop` tool from the `Tools > Utilities > Crop region` menu. 
+Use the rectangle tool to annotate a region. Start the `crop` tool from the `Plugins > napari-crop > Crop region` or, if available, `Tools > Utilities > Crop region` menu. 
 Click the `Run` button to crop the region.
 
 ![](https://github.com/BiAPoL/napari-crop/raw/main/images/draw_rectangle.png)

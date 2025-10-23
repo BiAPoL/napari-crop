@@ -1,6 +1,7 @@
+try:
+    from ._version import version as __version__
+except ImportError:
+    __version__ = "unknown"
 
-__version__ = "0.1.9"
-
-
-from ._dock_widgets import napari_experimental_provide_dock_widget
-from ._function import crop_region, cut_with_plane
+from ._dock_widgets import CutWithPlane
+from ._function import crop_region, cut_with_plane, draw_fixed_shapes

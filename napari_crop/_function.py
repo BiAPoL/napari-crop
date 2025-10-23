@@ -1,12 +1,12 @@
 import warnings
 
 import numpy as np
-from magicgui import magic_factory
 from napari_tools_menu import register_function
 import napari
 from napari.types import LayerDataTuple
 from typing import List
 from ._utils import compute_combined_slices
+from magicgui import magic_factory
 
 # This is the actual plugin function, where we export our function
 # (The functions themselves are defined below)
@@ -16,9 +16,29 @@ from ._utils import compute_combined_slices
 def crop_region(
     layer: napari.layers.Layer,
     shapes_layer: napari.layers.Shapes,
+    as_numpy: bool = False,
+    translate: bool = True,
     viewer: 'napari.viewer.Viewer' = None,
 ) -> List[LayerDataTuple]:
-    """Crop regions in napari defined by shapes."""
+    """Crop regions in napari defined by shapes.
+    
+    Parameters
+    ----------
+    layer : napari.layers.Layer
+        Layer to crop. Can be an image or labels layer.
+    shapes_layer : napari.layers.Shapes
+        Shapes layer defining the regions to crop.
+    as_numpy : bool, optional
+        If True, return the cropped data as numpy arrays. Default is False.
+    translate : bool, optional
+        If True, apply translation to the cropped data. Default is True.
+    viewer : napari.viewer.Viewer, optional
+        Viewer instance to use for the dimensions order.
+
+    Returns
+    -------
+
+    """
     if shapes_layer is None:
         shapes_layer.mode = "add_rectangle"
         warnings.warn("Please annotate a region to crop.")
@@ -126,7 +146,8 @@ def crop_region(
         # Pixels belonging to the bounding box are in the half-open interval [min_row; max_row) and [min_col; max_col).
         new_layer_props['metadata'] = {'bbox': tuple(start + stop)}
         # apply layer translation scaled by layer scaling factor
-        new_layer_props['translate'] = tuple(np.asarray(tuple(start)) * np.asarray(layer_props['scale']))
+        if translate:
+            new_layer_props['translate'] = tuple(np.asarray(tuple(start)) * np.asarray(layer_props['scale']))
 
         # If layer name is in viewer or is about to be added,
         # increment layer name until it has a different name
@@ -139,6 +160,8 @@ def crop_region(
                 new_layer_index += 1
         new_layer_props["name"] = new_name
         names_list.append(new_name)
+        if as_numpy:
+            cropped_data = np.asarray(cropped_data)
         cropped_list.append((cropped_data, new_layer_props, layer_type))
     return cropped_list
 
@@ -203,3 +226,67 @@ def cut_with_plane(image_to_be_cut, plane_normal, plane_position, positive_cut=T
     if crop:
         image_cut = trim_zeros(image_cut)
     return image_cut
+
+@magic_factory(
+    call_button="Draw",
+    shape_type={"choices": ["rectangle", "ellipse"]},  # Dropdown for shape type
+    shape_size_x={"widget_type": "SpinBox", "min": 1, "max": 5000, "step": 1},
+    shape_size_y={"widget_type": "SpinBox", "min": 1, "max": 5000, "step": 1},
+)
+def draw_fixed_shapes(
+    points: napari.types.PointsData,
+    shape_type: str = "rectangle",
+    shape_size_x: int = 256,
+    shape_size_y: int = 256,
+    viewer: napari.Viewer = None,
+) -> napari.layers.Shapes:
+    """Create shapes of fixed size at points layer coordinates.
+    
+    Parameters
+    ----------
+    points : napari.types.PointsData
+        Coordinates of the points layer.
+    shape_type : str
+        Type of shape to create. Can be 'rectangle' or 'ellipse'.
+    shape_size_x : int
+        Width of the shape.
+    shape_size_y : int
+        Height of the shape.
+    viewer : napari.Viewer, optional
+        Viewer instance to use for the dimensions order.
+        
+    Returns
+    -------
+    Shapes
+        Shapes layer with the created shapes."""
+    if points is None:
+        raise ValueError("No points provided. Please select a points layer.")
+    dims_order = tuple(range(points.ndim))
+    if viewer is not None:
+        dims_order = viewer.dims.order
+    shape_size = (shape_size_y, shape_size_x)
+    odd_shape = [size % 2 for size in shape_size]
+    
+    shapes_data = []
+    for coord in points:
+        shape_data = np.array([
+            [coord[dims_order[-2]] - (shape_size[-2] // 2), coord[dims_order[-1]] - (shape_size[-1] // 2)],  # Top-left
+            [coord[dims_order[-2]] - (shape_size[-2] // 2), coord[dims_order[-1]] + (shape_size[-1] // 2) + odd_shape[-1]],  # Bottom-left
+            [coord[dims_order[-2]] + (shape_size[-2] // 2) + odd_shape[-2], coord[dims_order[-1]] + (shape_size[-1] // 2) + odd_shape[-1]],  # Bottom-right
+            [coord[dims_order[-2]] + (shape_size[-2] // 2) + odd_shape[-2], coord[dims_order[-1]] - (shape_size[-1] // 2)],  # Top-right
+        ])
+        # Insert extra coordinates for higher dimensions
+        # For example, if the shape is 3D, we need to add the z-coordinates
+        extra_coords = np.take(coord, indices=dims_order[:-2], axis=0)
+        for i, ec in enumerate(extra_coords):
+            shape_data = np.insert(shape_data, 0, round(ec), axis=-1)
+        shape_data = shape_data[:, np.argsort(dims_order)]
+        shapes_data.append(shape_data)
+    
+    return napari.layers.Shapes(
+        data=shapes_data,
+        shape_type=[shape_type for _ in points],
+        edge_color='magenta',
+        face_color='#ffff0080', # semi-transparent yellow
+        edge_width=2,
+    )

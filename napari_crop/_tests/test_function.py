@@ -1,4 +1,4 @@
-from napari_crop._function import crop_region, cut_with_plane
+from napari_crop._function import crop_region, cut_with_plane, draw_fixed_shapes
 import pytest
 import numpy as np
 
@@ -258,3 +258,66 @@ output_expected_normal_z_position_1_negative = np.array([
 def test_cut_with_plane_negative():
     image_cut = cut_with_plane(volume_data, plane_normal_z, plane_position_1, positive_cut=False)
     assert np.array_equal(output_expected_normal_z_position_1_negative, image_cut)
+
+
+# Tests for draw_fixed_shapes function
+points_2d = np.array([[2, 2], [1, 4]])  # 2D points
+points_3d = np.array([[1, 2, 2], [1, 1, 4]])  # 3D points with z=1
+shape_types_fixed = ["rectangle", "ellipse"]
+shape_sizes = [(100, 50), (256, 256)]  # (x, y) sizes
+
+
+@pytest.mark.parametrize("shape_type", shape_types_fixed)
+@pytest.mark.parametrize("shape_size_x,shape_size_y", shape_sizes)
+def test_draw_fixed_shapes_2d(make_napari_viewer, shape_type, shape_size_x, shape_size_y):
+    """Test drawing fixed shapes in 2D with different types and sizes."""
+    viewer = make_napari_viewer()
+    points_layer = viewer.add_points(points_2d)
+    
+    widget = draw_fixed_shapes()
+    widget.shape_type.value = shape_type
+    widget.shape_size_x.value = shape_size_x
+    widget.shape_size_y.value = shape_size_y
+
+    shapes_layer = widget()
+    
+    # Check that we get the correct number of shapes
+    assert len(shapes_layer.data) == len(points_2d)
+    
+    # Check that all shapes have the correct type
+    assert all(st == shape_type for st in shapes_layer.shape_type)
+    
+    # Check that shapes are rectangles with 4 vertices each
+    for shape_data in shapes_layer.data:
+        assert shape_data.shape == (4, 2)  # 4 vertices, 2D coordinates
+
+
+def test_draw_fixed_shapes_3d(make_napari_viewer):
+    """Test drawing fixed shapes in 3D."""
+    viewer = make_napari_viewer()
+    points_layer = viewer.add_points(points_3d)
+
+    widget = draw_fixed_shapes()
+    widget.shape_type.value = "rectangle"
+    widget.shape_size_x.value = 100
+    widget.shape_size_y.value = 100
+
+    shapes_layer = widget()
+
+    # Check that we get the correct number of shapes
+    assert len(shapes_layer.data) == len(points_3d)
+
+    # Check that shapes have 3D coordinates (z, y, x)
+    for shape_data in shapes_layer.data:
+        assert shape_data.shape == (4, 3)  # 4 vertices, 3D coordinates
+        shape_size_y=100,
+        viewer=viewer
+    
+    
+    # Check that we get the correct number of shapes
+    assert len(shapes_layer.data) == len(points_3d)
+    
+    # Check that shapes have 3D coordinates (z, y, x)
+    for shape_data in shapes_layer.data:
+        assert shape_data.shape == (4, 3)  # 4 vertices, 3D coordinates
+

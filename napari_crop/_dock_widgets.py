@@ -2,21 +2,14 @@ import numpy as np
 
 from magicgui.widgets import Container, PushButton, ComboBox, CheckBox
 from typing import TYPE_CHECKING
-from napari_plugin_engine import napari_hook_implementation
 from skimage.segmentation import relabel_sequential
 from napari_tools_menu import register_dock_widget
-from magicgui import magic_factory
 
 from ._utils import array_allclose_in_list, find_array_allclose_position_in_list
-from ._function import cut_with_plane, crop_region, trim_zeros, get_nonzero_slices
+from ._function import cut_with_plane, trim_zeros, get_nonzero_slices
 import napari.layers
 if TYPE_CHECKING:
     import napari.viewer
-
-
-@napari_hook_implementation
-def napari_experimental_provide_dock_widget():
-    return [magic_factory(crop_region), CutWithPlane]
 
 
 @register_dock_widget(menu="Utilities > Cut volume with plane (napari-crop)")
@@ -136,7 +129,8 @@ class CutWithPlane(Container):
         '''Get layers of type image or labels and excludes the plane layer'''
         # Currently accepts only 3D data
         return [layer for layer in self._viewer.layers if isinstance(
-            layer, self.input_layer_types) and layer != self._plane_layer and layer.rgb is False and layer.ndim == 3]
+            layer, self.input_layer_types) and layer != self._plane_layer and 
+            (not isinstance(layer, napari.layers.Image) or layer.rgb is False) and layer.ndim == 3]
 
     def _on_plane_data_source_changed(self, new_value: str):
         '''Update plane data source and plane layer data'''
