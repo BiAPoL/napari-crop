@@ -278,8 +278,8 @@ def draw_fixed_shapes(
         # Insert extra coordinates for higher dimensions
         # For example, if the shape is 3D, we need to add the z-coordinates
         extra_coords = np.take(coord, indices=dims_order[:-2], axis=0)
-        for i, ec in enumerate(extra_coords):
-            shape_data = np.insert(shape_data, 0, round(ec), axis=-1)
+        for ec in extra_coords:
+            shape_data = np.insert(shape_data, -2, round(ec), axis=-1)
         shape_data = shape_data[:, np.argsort(dims_order)]
         shapes_data.append(shape_data)
     
