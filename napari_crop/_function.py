@@ -192,6 +192,8 @@ def cut_with_plane(image_to_be_cut, plane_normal, plane_position, positive_cut=T
     positive_cut : bool, optional
         If True, the positive side of the plane is kept.
         If False, the negative side of the plane is kept. By default True
+    crop : bool, optional
+        If True, the output image is cropped to the minimum size.
 
     Returns
     -------
