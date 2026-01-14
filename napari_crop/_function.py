@@ -60,6 +60,14 @@ def crop_region(
 
     shape_types = shapes_layer.shape_type
     shapes = shapes_layer.data
+    # Check if layer to be cropped is already translated
+    if not layer_props['translate'] == tuple([0.] * layer.ndim):
+        shapes = []
+        # Fix translation in shapes layer data
+        for shape in shapes_layer.data:
+            shape = (shape - (np.array(layer_props['translate']) / np.array(layer_props['scale'])))
+            shapes.append(shape)
+
     cropped_list = []
     new_layer_index = 0
     new_name = layer_props["name"] + " cropped [0]"
