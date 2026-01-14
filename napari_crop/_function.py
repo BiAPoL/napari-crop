@@ -61,7 +61,8 @@ def crop_region(
     shape_types = shapes_layer.shape_type
     shapes = shapes_layer.data
     # Check if layer to be cropped is already translated
-    if not layer_props['translate'] == tuple([0.] * layer.ndim):
+    layer_with_translation = not layer_props['translate'] == tuple([0.] * layer.ndim)
+    if layer_with_translation:
         shapes = []
         # Fix translation in shapes layer data
         for shape in shapes_layer.data:
@@ -156,6 +157,9 @@ def crop_region(
         # apply layer translation scaled by layer scaling factor
         if translate:
             new_layer_props['translate'] = tuple(np.asarray(tuple(start)) * np.asarray(layer_props['scale']))
+        if layer_with_translation:
+            # add original layer translation
+            new_layer_props['translate'] = tuple(np.asarray(new_layer_props['translate']) + np.asarray(layer_props['translate']))
 
         # If layer name is in viewer or is about to be added,
         # increment layer name until it has a different name
