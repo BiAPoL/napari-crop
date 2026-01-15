@@ -19,7 +19,15 @@ class CutWithPlane(Container):
         napari.layers.Labels,)
 
     def __init__(self, viewer: "napari.viewer.Viewer",
-                 plane_data_source: str = 'reference_layer_data', positive_cut: bool = True, crop: bool = False):
+                 plane_data_source: str = 'reference_layer_data', positive_cut: bool = True, **kwargs):
+        if kwargs:
+            import warnings
+            warnings.warn(
+                "The 'crop' argument is deprecated and will be removed in a future version. "
+                "Cropping will always be applied.",
+                DeprecationWarning,
+                stacklevel=2
+            )
         self._viewer = viewer
         # Create plane layer variable (needed for proper reference image combobox initialization)
         self._plane_layer = None
@@ -48,9 +56,6 @@ class CutWithPlane(Container):
         # Create positive cut checkbox
         self._positive_cut = positive_cut
         self._positive_cut_checkbox = CheckBox(value=self._positive_cut, label='Positive Cut')
-        # Create crop checkbox
-        self._crop = crop
-        self._crop_checkbox = CheckBox(value=self._crop, label='Crop')
         # Create ortogonal plane swap button
         self._ortogonal_plane_swap_btn = PushButton(label="Ortogonal Planes",
                                                     tooltip='Swap plane to ortogonal direction.\nShortcut: \'P\' key')
@@ -61,7 +66,6 @@ class CutWithPlane(Container):
         self._reference_image_combobox.changed.connect(self._on_image_layer_changed)
         self._plane_data_combobox.changed.connect(self._on_plane_data_source_changed)
         self._positive_cut_checkbox.changed.connect(self._on_positive_cut_changed)
-        self._crop_checkbox.changed.connect(self._on_crop_changed)
         self._viewer.bind_key('p', self._swap_normal_direction, overwrite=True)
         self._ortogonal_plane_swap_btn.changed.connect(self._swap_normal_direction)
         # Replace plane layer variable with plane containing initial values
@@ -75,7 +79,6 @@ class CutWithPlane(Container):
                 self._layer_to_be_cut_combobox,
                 self._plane_data_combobox,
                 self._positive_cut_checkbox,
-                self._crop_checkbox,
                 self._ortogonal_plane_swap_btn,
                 self._run_btn])
 
@@ -164,10 +167,6 @@ class CutWithPlane(Container):
         '''Update positive cut parameter'''
         self._positive_cut = new_value
 
-    def _on_crop_changed(self, new_value: bool):
-        '''Update crop parameter'''
-        self._crop = new_value
-
     def _on_cut_clicked(self):
         '''Cut image with plane and add new layer to viewer'''
         # Get plane parameters from plane layer
@@ -183,10 +182,9 @@ class CutWithPlane(Container):
         slices = get_nonzero_slices(image_cut)
         start = [slc.start for slc in slices if slc is not None]
         stop = [slc.stop for slc in slices if slc is not None]
-        if self._crop:
-            shift = tuple(start)
-            # Crop image
-            image_cut = trim_zeros(image_cut)
+        shift = tuple(start)
+        # Crop image
+        image_cut = trim_zeros(image_cut)
 
         # Apply layer translation scaled by layer scaling factor
         output_translate = np.asarray(shift) * np.asarray(layer_to_be_cut.scale)
