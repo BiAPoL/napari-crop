@@ -4,6 +4,7 @@ import numpy as np
 from napari_tools_menu import register_function
 import napari
 from napari.types import LayerDataTuple
+from napari.utils.notifications import show_warning
 from typing import List
 from ._utils import compute_combined_slices
 from magicgui import magic_factory
@@ -31,7 +32,9 @@ def crop_region(
     as_numpy : bool, optional
         If True, return the cropped data as numpy arrays. Default is False.
     translate : bool, optional
-        If True, apply translation to the cropped data. Default is True.
+        .. deprecated::
+            The 'translate' argument is deprecated and will be removed in a future version.
+            Translation will always be applied.
     viewer : napari.viewer.Viewer, optional
         Viewer instance to use for the dimensions order.
 
@@ -39,6 +42,19 @@ def crop_region(
     -------
 
     """
+    if translate is not True:
+        warnings.warn(
+            "The 'translate' argument is deprecated and will be removed in a future version. "
+            "Translation is always be applied.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        if viewer is not None:
+            show_warning(
+                "The 'translate' argument is deprecated and will be removed in a future version. "
+                "Translation is always be applied.",
+            )
+    
     if shapes_layer is None:
         shapes_layer.mode = "add_rectangle"
         warnings.warn("Please annotate a region to crop.")
@@ -155,11 +171,11 @@ def crop_region(
         # Pixels belonging to the bounding box are in the half-open interval [min_row; max_row) and [min_col; max_col).
         new_layer_props['metadata'] = {'bbox': tuple(start + stop)}
         # apply layer translation scaled by layer scaling factor
-        if translate:
-            new_layer_props['translate'] = tuple(np.asarray(tuple(start)) * np.asarray(layer_props['scale']))
+        translation = np.asarray(start) * np.asarray(layer_props['scale'])
         if layer_with_translation:
             # add original layer translation
-            new_layer_props['translate'] = tuple(np.asarray(new_layer_props['translate']) + np.asarray(layer_props['translate']))
+            translation = translation + np.asarray(layer_props['translate'])
+        new_layer_props['translate'] = tuple(translation)
 
         # If layer name is in viewer or is about to be added,
         # increment layer name until it has a different name
