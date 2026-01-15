@@ -83,9 +83,14 @@ class CutWithPlane(Container):
         '''Add plane layer to viewer'''
         plane_layer = self._reference_image_combobox.value
         self.plane_ortogonal_unity_vector_list = [np.array([0, 1, 0]), np.array([1, 0, 0]), np.array([0, 0, 1])]
+        # Get plane layer translation if it exists
+        plane_translate = np.asarray(plane_layer.translate)
+        plane_position = np.array([plane_layer.data.shape[0] // 2 - 0.5, plane_layer.data.shape[1] // 2 - 0.5, plane_layer.data.shape[2] // 2 - 0.5])
+        # Apply translation scaled by layer scale
+        plane_position = plane_position + (plane_translate / np.asarray(plane_layer.scale))
         plane_parameters = {
             # z, y, x (intital position in the middle of the image, at the edge of the voxel)
-            'position': (plane_layer.data.shape[0] // 2 - 0.5, plane_layer.data.shape[1] // 2 - 0.5, plane_layer.data.shape[2] // 2 - 0.5),
+            'position': tuple(plane_position),
             'normal': tuple(self.plane_ortogonal_unity_vector_list[0]),
             'thickness': 1,
         }
@@ -96,6 +101,7 @@ class CutWithPlane(Container):
                                                    blending='additive',
                                                    opacity=0.5,
                                                    scale=plane_layer.scale,
+                                                   translate=plane_layer.translate,
                                                    gamma=0.4,
                                                    contrast_limits=[0, plane_layer.data.max()],
                                                    plane=plane_parameters
@@ -182,6 +188,14 @@ class CutWithPlane(Container):
             # Crop image
             image_cut = trim_zeros(image_cut)
 
+        # Apply layer translation scaled by layer scaling factor
+        output_translate = np.asarray(shift) * np.asarray(layer_to_be_cut.scale)
+        # Check if layer to be cut already has translation
+        layer_with_translation = not np.array_equal(np.asarray(layer_to_be_cut.translate), np.zeros(layer_to_be_cut.ndim))
+        if layer_with_translation:
+            # add original layer translation
+            output_translate = output_translate + np.asarray(layer_to_be_cut.translate)
+
         if output_layer_type == 'labels':
             image_cut = relabel_sequential(image_cut)[0]
         self._viewer._add_layer_from_data(
@@ -189,7 +203,7 @@ class CutWithPlane(Container):
             meta={
                 'name': self._layer_to_be_cut_combobox.value.name + ' cut',
                 'scale': layer_to_be_cut.scale,
-                'translate': tuple(np.asarray(shift) * np.asarray(layer_to_be_cut.scale)),
+                'translate': tuple(output_translate),
                 'metadata': {'bbox': tuple(start + stop)},
             },
             layer_type=output_layer_type)
