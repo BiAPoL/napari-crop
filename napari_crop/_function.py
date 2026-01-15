@@ -264,8 +264,8 @@ def cut_with_plane(image_to_be_cut, plane_normal, plane_position, positive_cut=T
 def draw_fixed_shapes(
     points: napari.layers.Points,
     shape_type: str = "rectangle",
-    shape_size_x: int = 256,
-    shape_size_y: int = 256,
+    shape_size_x: int = 64,
+    shape_size_y: int = 64,
     viewer: napari.Viewer = None,
 ) -> napari.layers.Shapes:
     """Create shapes of fixed size at points layer coordinates.
@@ -277,9 +277,9 @@ def draw_fixed_shapes(
     shape_type : str
         Type of shape to create. Can be 'rectangle' or 'ellipse'.
     shape_size_x : int
-        Width of the shape.
+        Width of the shape, in pixels.
     shape_size_y : int
-        Height of the shape.
+        Height of the shape, in pixels.
     viewer : napari.Viewer, optional
         Viewer instance to use for the dimensions order.
         
