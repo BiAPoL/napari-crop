@@ -38,7 +38,7 @@ Create a new shapes layer to annotate the region you would like to crop:
 
 ![](https://github.com/BiAPoL/napari-crop/raw/main/images/shapes.png)
 
-Use the rectangle tool to annotate a region. Start the `crop` tool from the `Plugins > napari-crop > Crop region` or, if available, `Tools > Utilities > Crop region` menu. 
+Use the rectangle tool to annotate a region. Start the `crop` tool from the `Plugins > napari-crop > Crop region` or, if available, `Tools > Utilities > Crop region` menu or `Layer > Transform > Crop region(s)`. 
 Click the `Run` button to crop the region.
 
 ![](https://github.com/BiAPoL/napari-crop/raw/main/images/draw_rectangle.png)

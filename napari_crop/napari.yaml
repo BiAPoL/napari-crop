@@ -19,3 +19,8 @@ contributions:
     autogenerate: true
   - command: napari-crop.draw_fixed_shapes
     display_name: Draw Fixed Shapes
+  menus:
+    napari/layers/transform:
+      - command: napari-crop.crop_region
+      - command: napari-crop.draw_fixed_shapes
+      - command: napari-crop.CutWithPlane
