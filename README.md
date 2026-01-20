@@ -31,6 +31,10 @@ Cut a volume using a plane
 
 Draw shapes of fixed size at given coordinates for later cropping
 
+*Note:*
+
+*- the shapes are drawn with the specified width and height, but, since the crop widget is very permissive as it tends to include all pixels the shape "touches", the cropped result tends to be 1pixel larger in both dimensions. Therefore, to have a 64x64 array after cropping, it is best to set the shape sizes here to 63x63 for example.*
+
 ![](https://github.com/BiAPoL/napari-crop/raw/main/images/napari_crop_draw_shapes.gif)
 
 ## Usage
